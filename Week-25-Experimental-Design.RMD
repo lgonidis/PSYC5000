@@ -1,7 +1,7 @@
 ---
 title: "Week 25. Experimental Designs"
 author: "Dinkar Sharma, Lazaros Gonidis"
-date: "18/01/2022"
+date: "20/01/2022"
 output: html_document
 ---
 
