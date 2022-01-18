@@ -1,0 +1,32 @@
+---
+title: "Week 26. T-test Exercise"
+author: "Dinkar Sharma, Lazaros Gonidis"
+date: "18/01/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+In today's session we want you to revisit the *t*-test methods you used in your Stage 1. Use the **Stress.csv** data file and the appropriate arguments for the **t_test()** function.
+
+
+
+
+# Task 1
+
+Here we are going to test whether or not there is a difference in the overall stress levels at time one and time two.  Before doing this, you must obtain descriptive statistics (Mean, Standard deviation, Variance, Kurtosis and Skewness) for STRESS1 and STRESS2 and produce a histogram for each of the variables. Once these statistics and histograms have been generated, carry out the repeated measures *t*-test.
+
+
+Q1) Will you be using a paired-samples or an independent-samples t-test?
+
+Q2) Which argument did you use for running the correct t-test?
+
+Q3) What are the assumptions of this test and judging from the histograms and variances, to what extent are these assumptions violated by the data? 
+
+Q4) What is the Null Hypothesis for this test?
+
+Q5) Can it be rejected?________. Fill in :  t (     ) = ______, ______
+
