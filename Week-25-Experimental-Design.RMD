@@ -53,7 +53,7 @@ The above table is presenting our data in what we call **long format** where all
 
 We now have a different design where each participant performs the task twice, once at **am** and once again at **pm**
 
-```{r within, message=FALSE, warning=FALSE, include=FALSE}
+```{r within, echo=TRUE, message=FALSE, warning=FALSE}
 
 Participant_number <- c(1,2,3,4,5)
 am <-c(10, 8, 6, 5, 8)
@@ -111,7 +111,7 @@ df2_wide
 
 Our function is called **pivot_wider()** and it took a number of arguments.  
 1. First we declared our dataframe **df2_long**  
-2. Then we declared **names_from**, which states the column that contains the levels we will use to create the new measurement variables. In this case the column was called **time** and it contained two levels **am** and **pm**. Hence, we will have two new columns create with these names.   
+2. Then we declared **names_from**, which states the column that contains the levels we will use to create the new measurement variables. In this case the column was called **time** and it contained two levels **am** and **pm**. Hence, we will have two new columns created with these names.   
 3. We then declared **values_from** which selects that column that currently contains our measurements. These measurements will be distributed to two new columns in the wide format dataframe.  
 
 You should now have an understanding of how we convert from long to wide and vice versa. Complete the two exercises below that will help you consolidate your learning.
@@ -238,7 +238,7 @@ df1_long$age <- as.factor(df1_long$age)
 
 
 ## acquire simple descriptives using the package mosaic
-## specificall the function favstats returns some of the more
+## specifically the function favstats returns some of the more
 ## common stats we include in our reports.
 
 descriptive <- favstats(score ~ age, data = df1_long )
