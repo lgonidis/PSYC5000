@@ -24,7 +24,7 @@ In today's session we want you to revisit the *t*-test methods you used in your 
   2.2 Levene's test  
 3. Carry out the appropriate t-test
 
-## Let us have a look at how we can carry our these checks using the datafile **student t test.csv**. 
+### Let us have a look at how we can carry our these checks using the datafile **student t test.csv**. 
 
 ```{r example, echo=TRUE, message=FALSE, warning=FALSE}
 library(rstatix)
@@ -43,7 +43,7 @@ group_by(df, group) %>%
   ungroup()
 
 ### check whether our scores are normally distributed
-### using Shapiro Wilk test
+### using Shapiro-Wilk test
 ### p values above 0.05 indicate normally distributed scores
 df %>%
   group_by(group) %>%
@@ -75,7 +75,15 @@ library(moments)
 df %>%
   group_by(group) %>%
   summarise(Skew = skewness(performance),
-            Kurt = kurtosis(performance))
+            Kurt = kurtosis(performance)) %>% 
+  ungroup()
+
+### for normality we are looking for skewness values
+### between 2 and -2
+
+
+### we can also inspect visually by looking at histograms
+gghistogram(df, "performance", bins = 10, color = "group")
 
 
 ### check for equal variances
@@ -96,9 +104,9 @@ levene_test(df, performance ~ group)  ### performance by group
 
 
 
-By looking at our output we see that the two groups are normally distributed and have equal variance. We will therefore run **Student's t-test**.
+By looking at our output we see that the two groups are normally distributed and have equal variance. We will therefore run **Student's t-test**. We do that by using the argument `var.equal = TRUE`. It is also worth noting here that our example above utilised a between-participants design. If we wanted to carry out a t-test for within-participants data then all we had to do was to add the argument `paired = TRUE`.
 
-```{r example student's}
+```{r example student}
 t_test(df, performance~group, var.equal = TRUE)
 ```
 
@@ -110,7 +118,19 @@ t_test(df, performance~group, var.equal = TRUE)
 
 # Task 1
 
-Here we are going to test whether or not there is a difference in the overall stress levels at time one and time two.  Before doing this, you must obtain descriptive statistics (Mean, Standard deviation, Variance, Kurtosis and Skewness) for STRESS1 and STRESS2 and produce a histogram for each of the variables. Once these statistics and histograms have been generated, carry out the repeated measures *t*-test.
+For Task 1 you will need to work with the datafile **stress.sav**. You can find the file on Moodle in the folder called **ALL WEEKS - R files for computing exercises**. This is an SPSS datafile so make sure you use the correct package to load it as a dataframe.    
+Once you load the file make sure that grouping variables are correctly identified as factors (hint: `as.factor()`)
+
+```{r}
+### the haven package allows you to read SPSS datafiles
+### make sure to install the haven package before using library
+
+library(haven)
+df <- read_sav("stress.sav")
+```
+
+
+Here we are going to test whether or not there is a difference in the overall stress levels at time one and time two.  Before doing this, you must obtain descriptive statistics (Mean, Standard deviation, Variance, Kurtosis and Skewness) for STRESS1 and STRESS2 and produce a histogram for each of the variables. Once these statistics and histograms have been generated, carry out the repeated measures **t-test**.
 
 
 Q1) Will you be using a paired-samples or an independent-samples t-test?
@@ -122,4 +142,45 @@ Q3) What are the assumptions of this test and judging from the histograms and va
 Q4) What is the Null Hypothesis for this test?
 
 Q5) Can it be rejected?________. Fill in :  t (     ) = ______, ______
+
+
+# Task 2:  
+
+We are now going to test whether there is a difference in stress levels between males and females at time 1 (an independent t-test). Carry out the appropriate checks and t-test in order to answer the following questions.
+
+Q1) What are the assumptions of this test and judging from the histograms, descriptive information and Levene’s test, to what extent are they violated by the data? 
+
+Q2) Which arguments will you use within your **t_test()**?
+
+Q3) What is the Null Hypothesis for this test?
+
+Q4) Can it be rejected?________. Fill in :  t (     ) = ______, ______. 
+
+
+# Task 3  
+
+For this task, you are required to carry out a t-test investigating the difference between stress levels at time 1 and stress levels at time 2 but only with patients
+
+Q1) What sort of t-test are you using here and what is it doing?
+
+Q2) To what extent are the test’s assumptions violated by the data here? 
+
+Q3) What is the Null Hypothesis for this test?
+
+Q4) Can it be rejected?________. Fill in :  t (     ) = ______, ______
+
+# Task 4
+
+
+Once you have finished task 3, make sure you are now working on all the data.  Now produce descriptive statistics and histograms for patients and spouses at time 1. Use the appropriate t-test to compare these two conditions at time 1. 
+
+Q1) What sort of t-test are you using and what is it doing?  
+
+Q2) To what extent are the test’s assumptions violated by the data? 
+Q3) What is the Null Hypothesis for this test?  
+
+Q4) Can it be rejected?________. Fill in :  t (     ) = ______, ______
+
+
+
 

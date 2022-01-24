@@ -188,9 +188,8 @@ pre code {
 </li>
 <li>Carry out the appropriate t-test</li>
 </ol>
-</div>
-<div id="let-us-have-a-look-at-how-we-can-carry-our-these-checks-using-the-datafile-student-t-test.csv." class="section level2">
-<h2>Let us have a look at how we can carry our these checks using the datafile <strong>student t test.csv</strong>.</h2>
+<div id="let-us-have-a-look-at-how-we-can-carry-our-these-checks-using-the-datafile-student-t-test.csv." class="section level3">
+<h3>Let us have a look at how we can carry our these checks using the datafile <strong>student t test.csv</strong>.</h3>
 <pre class="r"><code>library(rstatix)
 library(tidyverse)
 library(ggpubr)
@@ -211,7 +210,7 @@ group_by(df, group) %&gt;%
 ## 1 1     performance    50  605.  92.2
 ## 2 2     performance    50  813.  91.3</code></pre>
 <pre class="r"><code>### check whether our scores are normally distributed
-### using Shapiro Wilk test
+### using Shapiro-Wilk test
 ### p values above 0.05 indicate normally distributed scores
 df %&gt;%
   group_by(group) %&gt;%
@@ -246,57 +245,81 @@ library(moments)
 df %&gt;%
   group_by(group) %&gt;%
   summarise(Skew = skewness(performance),
-            Kurt = kurtosis(performance))</code></pre>
+            Kurt = kurtosis(performance)) %&gt;% 
+  ungroup()</code></pre>
 <pre><code>## # A tibble: 2 x 3
 ##   group    Skew  Kurt
 ##   &lt;fct&gt;   &lt;dbl&gt; &lt;dbl&gt;
 ## 1 1     0.122    2.60
 ## 2 2     0.00319  3.08</code></pre>
-<pre class="r"><code>group_by(df, group)</code></pre>
-<pre><code>## # A tibble: 100 x 2
-## # Groups:   group [2]
-##    performance group
-##          &lt;dbl&gt; &lt;fct&gt;
-##  1        577. 1    
-##  2        756. 1    
-##  3        607. 1    
-##  4        613. 1    
-##  5        772. 1    
-##  6        646. 1    
-##  7        473. 1    
-##  8        531. 1    
-##  9        555. 1    
-## 10        722. 1    
-## # ... with 90 more rows</code></pre>
-<pre class="r"><code>kurtosis(df$performance)</code></pre>
-<pre><code>## [1] 2.276228</code></pre>
-<pre class="r"><code>skewness(df$performance)</code></pre>
-<pre><code>## [1] 0.008525276</code></pre>
-<pre class="r"><code>ungroup(df)</code></pre>
-<pre><code>## # A tibble: 100 x 2
-##    performance group
-##          &lt;dbl&gt; &lt;fct&gt;
-##  1        577. 1    
-##  2        756. 1    
-##  3        607. 1    
-##  4        613. 1    
-##  5        772. 1    
-##  6        646. 1    
-##  7        473. 1    
-##  8        531. 1    
-##  9        555. 1    
-## 10        722. 1    
-## # ... with 90 more rows</code></pre>
+<pre class="r"><code>### for normality we are looking for skewness values
+### between 2 and -2
+
+
+### we can also inspect visually by looking at histograms
+gghistogram(df, &quot;performance&quot;, bins = 10, color = &quot;group&quot;)</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABUAAAAPACAMAAADDuCPrAAAA21BMVEUAAAAAADoAAGYAOjoAOmYAOpAAZpAAZrYAv8Q6AAA6OgA6Ojo6OmY6ZmY6ZpA6ZrY6kJA6kNtmAABmOgBmOjpmOmZmZjpmZmZmZpBmkLZmkNtmtrZmtttmtv+QOgCQZgCQZjqQZmaQkLaQtraQttuQ27aQ29uQ2/+2ZgC2Zjq2kDq2kGa2tpC2tra2ttu225C227a229u22/+2///bkDrbkGbbtmbbtpDbtrbbttvb27bb29vb2//b/7bb/9vb///4dm38u7b/tmb/25D/27b/29v//7b//9v////B4fdcAAAACXBIWXMAAB2HAAAdhwGP5fFlAAAgAElEQVR4nO3dbWMb14GeYdAvdZh17Upykzi1VG+T1nQTbxubsdM4rbKULOr//6ICJABixKE4HB7gnPPguj7s0pDMh4MAt/HOxVsAZlnU/gEAeiWgADMJKMBMAgowk4ACzCSgADMJKMBMAgowk4ACzCSgADMJKMBMAgowk4ACzCSgADMJKMBMAgowk4ACzCSgADMJKMBMAgowk4ACzCSgADMJKMBMAgowk4ACzCSgADMJKMBMAgowk4ACzCSgADMJKMBMAkof/vkAD/zWv3qIfRwb3RJQ+iCgNEhA6cP0LM4I6D7+KsdAQOmDgNIgAaUPAkqDBJQ+CCgNElD6IKA0SEDpg4DSIAGlDwJKgwSUPggoDRJQ+iCgNEhA6YOA0iABpQ8CSoMElD4IKA0SUPpQIqAXiydjJz86oK+/Pl0sPvzq5eRvQwoBpQ8FAvrm6X4Cer649rGCHh0BpQ+PD+ibZ4u9BPRisfj8H28v/3q6+GTy9yGEgNKHRwf01fJu9l4CerYO5/ni5JvJ34gMAkoxr79YJurT75f3lK/uzJ4t/99Pv16dsvyHy5+u/vCP1/dyL19sY7Ps2upvv1rdflt9g5Plrbkxjwzo5beLxUfP9hHQ5eE+H37B8RBQStk8FPifbgL64+qfV6l8/Wz9hx+tanpHQK9uIy7uuB33yIC+Oj35/XJ1P08iXRPQIySgFHKxuLEO6IdXRfzkqi0bH/zw9o6A/ocX678yWtDHBvR337/dc0CXhyCgx0ZAKWPVyNXNyx9PbwK6/OLqBufqy5MvX769/NPpVU/HA3rz7489GVPgWfg9B/T8+j8OHBMBpYzzzct4VincBHT9wp7lSeterr8aD+j23x+7Cdp8QJc/9+h3J5mAUsYyl+s7sOc3AX2yPeWTm7/25I6Abk45G32yvPWAvnnmdaBHSEApYnkPfnMHdp3EnaTefHX9bPt4QDf9uRi9D994QHeOiCMioBSxee3Szpdnm6TsxuU6lHe8jGl7SncBXd7+1M9jJKAUsXMLciyg26dXrv/wvoCO3BluOqCvn+rncRJQijjqW6DLn/iD7yd/D4IIKEWMPga687TQ5jHQ6wc4sx4DXf7sH3kB03ESUIpYxun2s/CbSN56Fn74Z+uAbgK8k9sd7QZ058Y3x0ZAKWP7OtDVK+rfCeit14GuInmd1NdPtwFdn7KT0l3tBtQL6I+YgFLG5p1IP+28E2n7yOfuO5Gu/mz1vvnPlyds37d09U6kz76/PqWrdyLtvE3VK+mPjoBSyMh74bcBffe98Dsn/Jenm4Bev3N++1fe0WxAX53eHLeAHhsBpZTbn8Z089Kedz6NaZnbdXaevNkG9JN1gsefkPE7kWiQgFLM+vNANy9D2g3o9vNAtyf88u3p1T/vBPTtq2erXy00/s0FlAYJKKWNv47zsf+SgNIgAaWMwTvfH/5YoIDSIwGljNUT7as76L98e8ezQO8noPRIQCnjkU9GCyg9ElAK+fH0Ef0UULokoJTyy59+vaznh1+O/1bNewgoPRJQ+iCgNEhA6YOA0iABpQ//fIAHfutfPcQ+jo1uCSh9EFAaJKAAMwkowEwCCjCTgALMJKAAMwkowEwCCjCTgALMJKAAMwkowEwCCjCTgALMJKAAMwkowEwCCjCTgALMJKAAMwkowEwCCjCTgALMJKAAMwkowEwCCjCTgALMJKAAMwkowEwCCjCTgALMJKAAMwkowEwCCjCTgALMJKAAMwkowEwCCjCTgALMJKAAMwkowEwCCjCTgALMJKAAMwkowEwCCjCTgALMJKAAMwkowEwCCjCTgALMdKiALpQaSCOgADMJKMBMAgowk4ACzCSgADMJKMBMAgowk4ACzCSgADMJKMBMAgowk4ACzCSgADMJKMBMAgowk4ACzCSgADMJKMBMAgowk4ACzCSgADMJKMBMAgow0yO79ubpBz9svr58sdh6fmtHQIE0j+vaspk3AX3zVECBY/Korl2eLXYCerEQUOCYPKZrV/fZbwJ6PtLNmx0BBdI8oms/nS4GAT3b+fr2joACaWZ37fWzZT0/e3YTzeXt0Y9f3r0joECa2V1b3mE/+Wr3SaQ3TxefvGdHQIE08wN68vnLwbPwF4vF89dfLG+WfvrHsR0BBdLM7tovq7vruwE9X5z8Zv0c/Ge378oLKBCn3OtAz3ZexbTzYOj2tEcNhfrnodU+4L361aHVPmDqKxbQ1WuaTr5chvP118taPrkZENC7CWhJAsrBFQvom6eLk2+uvzzffXGTgL7HgYsWH9DkOZpU8K2cu6feekm9gI4R0JIElIPbR0BXN0GfvHOSgI4R0JIElIPbS0AvBHQaAS1JQDk4Aa1JQEsSUA5uX3fhPQY6hYCWJKAcXLGA7jzuufOE/M2OgI4Q0JIElIMrFtBXp5svV58Seutd8QI6RkBLElAOruwL6b96+fbt358tbt8AFdBRAlqSgHJw5R4DfXV681bOd59CEtBxAlqSgHJwBZ9EevVsnc+T34/sCOgIAS1JQDm4ks/CX/60+jS7D7/8x9iOgI4Q0JIElIPze+FrEtCSBJSDE9CaBLQkAeXgBLQmAS1JQDk4Aa1JQEsSUA5OQGsS0JIElIMT0JoEtCQB5eAEtCYBLUlAOTgBrUlASxJQDk5AaxLQkgSUgxPQmgS0JAHl4AS0JgEtSUA5OAGtSUBLElAOTkBrEtCSBJSDE9CaBLQkAeXgBLQmAS1JQDk4Aa1JQEsSUA5OQGsS0JIElIMT0JoEtCQB5eAEtCYBLUlAOTgBrUlASxJQDk5AaxLQkgSUgxPQmgS0JAHl4AS0JgEtSUA5OAGtSUBLElAOTkBrEtCSBJSDE9CaBLQkAeXgBLQmAS1JQDk4Aa1JQEsSUA5OQGsS0JIElIMT0JoEtCQB5eAEtCYBLengAT2wgx4d0whoTQJakoBycAJak4CWlH0XXkCbJKA1CWhJ2UUT0CYJaE0CWlJ20QS0SQJak4CWlF00AW2SgNYkoCVlF01AmySgNQloSdlFE9AmCWhNAlpSdtEEtEkCWpOAlpRdNAFtkoDWJKAlZRdNQJskoDUJaEnZRRPQJgloTQJaUnbRBLRJAlqTgJaUXTQBbZKA1iSgJWUXTUCbJKA1CWhJ2UUT0CYJaE0CWlJ20QS0SQJak4CWlF00AW2SgNYkoCVlF01AmySgNQloSdlFE9AmCWhNAlpSdtEEtEkCWpOAlpRdNAFtkoDWJKAlZRdNQJskoDUJaEnZRRPQJgloTQJaUnbRBLRJAlqTgJaUXTQBbZKA1iSgJWUXTUCbJKA1CWhJ2UUT0CYJaE0CWlJ20QS0SQJak4CWlF00AW2SgNYkoCVlF01AmySgNQloSdlFE9AmCWhNAlpSdtEEtEkCWpOAlpRdNAFtkoDWJKAlZRdNQJskoDUJaEnZRRPQJgloTQJaUnbRBLRJAlqTgJaUXTQBbZKA1iSgJWUXTUCbJKA1CWhJ2UUT0CYJaE0CWlJ20QS0SQJak4CWlF00AW2SgNYkoCVlF01AmySgNQloSdlFE9AmCWhNAlpSdtEEtEkCWpOAlpRdNAFtkoDWJKAlZRdNQJskoDUJaEnZRRPQJgloTQJaUnbRBLRJAlqTgJaUXTQBbZKA1iSgJWUXTUCbJKA1CWhJ2UUT0CYJaE0CWlJ20QS0SQJak4CWlF00AW2SgNYkoCVlF01AmySgNQloSdlFE9AmCWhNAlpSdtEEtEkCWpOAlpRdNAFtkoDWJKAlZRdNQJskoDUJaEnZRRPQJgloTQJaUnbRBLRJAlqTgJaUXTQBbZKA1iSgJWUXTUCbJKA1CWhJ2UUT0CYJaE0CWlJ20QS0SQJak4CWlF00AW2SgNYkoCVlF01AmySgNQloSdlFE9AmCWhNAlpSdtEEtEkCWpOAlpRdNAFtkoDWJKAlZRdNQJskoDUJaEnZRRPQJgloTQJaUnbRBLRJAlqTgJaUXTQBbZKA1iSgJWUXTUCbJKA1CWhJ2UUT0CYJaE0CWlJ20QS0SQJak4CWlF00AW2SgNYkoCVlF01AmySgNQloSdlFE9AmCWhNAlpSdtEEtEkCWpOAlpRdNAFtkoDWJKAlZRdNQJskoDUJaEnZRRPQJgloTQJaUnbRBLRJAlqTgJaUXTQBbZKA1iSgJWUXTUCbJKA1CWhJ2UUT0CYJaE0CWlJ20QS0SQJak4CWlF00AW2SgNYkoCVlF01AmySgNQloSdlFE9AmCWhNAlpSdtEEtEkCWpOAlpRdNAFtkoDWJKAlZRdNQJskoDUJaEnZRRPQJgloTQJaUnbRBLRJAlqTgJaUXTQBbZKA1iSgJWUXTUCbJKA1CWhJ2UUT0CYJaE0CWlJ20QS0SQJak4CWlF00AW2SgNYkoCVlF01AmySgNQloSdlFE9AmCWhNAlpSdtEEtEkCWpOAlpRdNAFtkoDWJKAlZRdNQJskoDUJaEnZRRPQJgloTQJaUnbRBLRJAlqTgJaUXTQBbZKA1iSgJWUXTUCbJKA1CWhJ2UUT0CYJaE0CWlJ20QS0SQJak4CWlF00AW2SgNYkoCVlF01AmySgNQloSdlFE9AmCWhNAlpSdtEEtEkCWpOAlpRdNAFtkoDWJKAlZRdNQJskoDUJaEnZRRPQJgloTQJaUnbRBLRJAlqTgJaUXTQBbZKA1iSgJWUXTUCbJKA1CWhJ2UUT0CYJaE0CWlJ20QS0SQJak4CWlF00AW2SgNYkoCVlF01AmySgNQloSdlFE9AmCWhNAlpSdtEEtEkCWpOAlpRdNAFtkoDWJKAlZRdNQJskoDUJaEnZRRPQJgloTQJaUnbRBLRJAlqTgJaUXTQBbZKA1nTwgB7YQY8uvGgC2iQBrUlAS8oumoA2SUBryr4LL6AdzzGNgNaUXTQB7XiOaQS0puyiCWjHc0wjoDVlF01AO55jGgGtKbtoAtrxHNMIaE3ZRRPQjueYRkBryi6agHY8xzQCWlN20QS04zmmEdCasosmoB3PMY2A1pRdNAHteI5pBLSm7KIJaMdzTCOgNWUXTUA7nmMaAa0pu2gC2vEc0whoTdlFE9CO55hGQGvKLpqAdjzHNAJaU3bRBLTjOaYR0JqyiyagHc8xjYDWlF00Ae14jmkEtKbsoglox3NMI6A1ZRdNQDueYxoBrSm7aALa8RzTCGhN2UUT0I7nmEZAa8oumoB2PMc0AlpTdtEEtOM5phHQmrKLJqAdzzGNgNaUXTQB7XiOaQS0puyiCWjHc0wjoDVlF01AO55jGgGtKbtoAtrxHNMIaE3ZRRPQjueYRkBryi6agHY8xzQCWlN20QS04zmmEdCasosmoB3PMY2A1pRdNAHteI5pHtm1N08/+OHmn15/fbpYnHz2/diOgI7ILpqAdjzHNI/r2uWLxU5Af1zmc+Xk9yM7Ajoiu2gC2vEc0zyqa5dni52AXiy2nt/eEdAR2UUT0I7nmOYxXVve/twJ6Juni8VHy3vvf3+2W9XtjoCOyC6agHY8xzSP6NpPV/fYt608Xyw+frn6YtXVJ7d2BHREdtEEtOM5ppndtdfLG5qLz55tA7rM5sk311++Ol2ndHdHQEdkF01AO55jmtldW97gPPlq50mk5T34TTV3WnqzI6AjsosmoB3PMc38gJ58/nL3WfiLxeKTzZ+d3X4aSUDHZBdNQDueY5rZXftldXNzGNDtA5/nAjpNdtEEtOM5pin2OtDdaO7GdPvSpkcNhcoumoB2PMc0AlpTdtEEtOM5phHQmrKLJqAdzzHN3gO62RHQEdlFE9CO55hGQGvKLpqAdjzHNMUC6ln4GbKLJqAdzzFNyYB6HehDZRdNQDueY5piAfVOpBmyiyagHc8xTbGAei/8DNlFE9CO55im3Acq+zSmh8sumoB2PMc05QJ69Xmgf/F5oA+RXTQB7XiOaQr+Sg+fSP9g2UUT0I7nmKbk70T6q9+J9EDZRRPQjueYpmRA/VbOh8oumoB2PMc0fi98TdlFE9CO55hGQGvKLpqAdjzHNAJaU3bRBLTjOaYR0JqyiyagHc8xjYDWlF00Ae14jmkEtKbsoglox3NMI6A1ZRdNQDueYxoBrSm7aALa8RzTCGhN2UUT0I7nmEZAa8oumoB2PMc0AlpTdtEEtOM5phHQmrKLJqAdzzGNgNaUXTQB7XiOaQS0puyiCWjHc0wjoDVlF01AO55jGgGtKbtoAtrxHNMIaE3ZRRPQjueYRkBryi6agHY8xzQCWlN20QS04zmmEdCasosmoB3PMY2A1pRdNAHteI5pBLSm7KIJaMdzTCOgNWUXTUA7nmMaAa0pu2gC2vEc0whoTdlFE9CO55hGQGvKLpqAdjzHNAJaU3bRBLTjOaYR0JqyiyagHc8xjYDWlF00Ae14jmkEtKbsoglox3NMI6A1ZRftnweWXbRfHdpBj65bAlqTgAro9DkBbZCA1pQe0IPOHb5o5hDQmrKLJqDm4gloTdlFE1Bz8QS0puyiCai5eAJaU3bRBNRcPAGtKbtoAmounoDWlF00ATUXT0Bryi6agJqLJ6A1ZRdNQM3FE9CasosmoObiCWhN2UUTUHPxBLSm7KIJqLl4AlpTdtEE1Fw8Aa0pu2gCai6egNaUXTQBNRdPQGvKLpqAmosnoDVlF01AzcUT0Jqyiyag5uIJaE3ZRRNQc/EEtKbsogmouXgCWlN20QTUXDwBrSm7aAJqLp6A1pRdNAE1F09Aa8oumoCaiyegNWUXTUDNxRPQmrKLJqDm4gloTdlFE1Bz8e7o2uXfvvu3lzf/+Lc/ffly/C9O3hHQEdlFE1Bz8e7o2puniw9+uOOf5u0I6IjsogmouXgCWlN20QTUXLzbXfvrb5d+c7o4+Y+/3Xi2ENC9yC6agJqLd7trr04XIz557I6AjsgumoCaizfStbORfn70yBugAjoqu2gCai7eSNcuv/vuuz8v78L/4butnx+/I6AjsosmoObiTXoSqcSOgI7ILpqAmos37XWgBXYEdER20QTUXDzvRKopu2gCai6egNaUXTQBNRfvPV3727/+9sbvvJVzD7KLJqDm4t3ZtXdeDuqF9PuQXTQBNRfvrq69+3J6Ad2H7KIJqLl4d3XtfBnNT//w89Y/HrsjoCOyiyag5uLd9TKmF49/9+ZwR0BHZBdNQM3Fu/uF9CffFN0R0BHZRRNQc/G8E6mm7KIJqLl4d9+FF9D9yy6agJqL954nkZ4X3RHQEdlFE1Bz8e7qWun78AI6JrtoAmou3vteSH/y5eM/xm67I6AjsosmoObi3f0kkhfS71920QTUXDwBrSm7aAJqLt5dAf3iX4Y+FdA9yC6agJqL5+PsasoumoCaiyegNWUXTUDNxRPQmrKLJqDm4gloTdlFE1Bz8e56K+fup9H7RPp9yS6agJqL52VMNWUXTUDNxRPQmrKLJqDm4t3VtV+2n0X/568XJ1/5RPq9yC6agJqLN6Vrr04XXz16R0BHZBdNQM3Fm9S188d/PL2AjskumoCaizepa8uboI/9BUkCOia7aAJqLt6krhX4cFABHZNdNAE1F2/qLVAB3YfsogmouXgTHwNdfOyF9HuQXTQBNRfv/q5d/vw/F4//JfECOia7aAJqLt7EF9J7Fn4vsosmoObiTQvoideB7kV20QTUXLwpn0j/6ZePfR+SgI7LLpqAmovn4+xqyi6agJqLJ6A1ZRdNQM3FE9CasosmoObivbdrv3y39G+PfwD0rYCOyy6agJqL956u/fjrYs/BC+i47KIJqLl4d3ft252XMX3+yPchCei47KIJqLl4d3btfHXT87Pvvvvz16cF3ogkoKOyiyag5uLd1bVXp9vbnZffeifSnmQXTUDNxbura2e7tzrPvBd+P7KLJqDm4t31a41f7N7oXN4c9WlM+5BdNAE1F+/u98LvfAKoD1Tek+yiCai5eAJaU3bRBNRcPHfha8oumoCai+dJpJqyiyag5uLd1bWLxWL7y+B/XH79/LE7Ajoiu2gCai7enV1b3upcfPSHn3/++c/PvJB+X7KLJqDm4t3ZtcsXO2/lfOwjoAI6LrtoAmou3t1du9y+Gf7k8W+FF9BR2UUTUHPx3tu1v/3rb3/729/9W5EdAR2RXTQBNRfPByrXlF00ATUXT0Bryi6agJqL976uXf6f1WOfb/7zf3v8Q6ACOiq7aAJqLt7dXXv9xfX7N988XZz8/vE7Ajoiu2gCai7enV27OF1sA7pYPHn0joCOyC6agJqL974PVF6/fOkXH6i8L9lFE1Bz8d7zXvibV897L/yeZBdNQM3F82lMNWUXTUDNxfN5oDVlF01AzcUT0Jqyiyag5uLdfRd+5xPsLh7/cSICOia7aAJqLt5dXTvfeeZ99Yz8Y1/HJKBjsosmoObi3dW1q1d/fvbHn3/++W9fl/g8OwEdk100ATUX786urW52bj36ZaACOiq7aAJqLt573sr59bafn/k80P3ILpqAmov33g8Tuf480D8W+CwRAR2VXTQBNRfPx9nVlF00ATUXT0Bryi6agJqLJ6A1ZRdNQM3FE9CasosmoObiCWhN2UUTUHPxBLSm7KIJqLl4AlpTdtEE1Fw8Aa0pu2gCai6egNaUXTQBNRdPQGvKLpqAmosnoDVlF01AzcUT0Jqyiyag5uIJaE3ZRRNQc/EEtKbsogmouXgCWlN20QTUXDwBrSm7aAJqLp6A1pRdNAE1F09Aa8oumoCaiyegNWUXTUDNxRPQmrKLJqDm4gloTdlFE1Bz8QS0puyiCai5eAJaU3bRBNRcPAGtKbtoAmounoDWlF00ATUXT0Bryi6agJqLJ6A1ZRdNQM3FE9CBfx7agY8ueW55nf/3Q8oumoBOI6ADAtrvnIB2PNctAR3ITkz2XHhisue6JaAD2YnJngtPTPZctwR0IDsx2XPhicme65aADmQnJnsuPDHZc90S0IHsxGTPhScme65bAjqQnZjsufDEZM91S0AHshOTPReemOy5bgnoQHZisufCE5M91y0BHchOTPZceGKy57oloAPZicmeC09M9ly3BHQgOzHZc+GJyZ7rloAOZCcmey48Mdlz3RLQgezEZM+FJyZ7rlsCOpCdmOy58MRkz3VLQAeyE5M9F56Y7LluCehAdmKy58ITkz3XLQEdyE5M9lx4YrLnuiWgA9mJyZ4LT0z2XLcEdCA7Mdlz4YnJnuuWgA5kJyZ7Ljwx2XPdEtCB7MRkz4UnJnuuWwI6kJ2Y7LnwxGTPdUtAB7ITkz0XnpjsuW4J6EB2YrLnwhOTPdctAR3ITkz2XHhisue6JaAD2YnJngtPTPZctwR0IDsx2XPhicme65aADmQnJnsuPDHZc90S0IHsxGTPhScme65bAjqQnZjsufDEZM91S0AHshOTPReemOy5bgnoQHZisufCE5M91y0BHchOTPZceGKy57oloAPZicmeC09M9ly3Cnbt8sVi6/mtHQE1t2fZicme61bBrr15KqDm6s2FJyZ7rlsFu3axEFBz9ebCE5M9162CXTsf6ebNjoCa27PsxGTPdatg184WH/xw946Amtuz7MRkz3WrXNcuXyw+fnn3joCa27PsxGTPdatc1948XXzynh0BNbdn2YnJnutWua5dLBbPX3+xWCw+/ePYjoCa27PsxGTPdatc184XJ79ZPwf/2e278gJqbt+yE5M9161yXTvbeRXTzoOh29OKDe1TdmKy58ITkz3XrWJdW70P6eTLZThff72s5ZObAQE1dxjZicme61axrr15ujj55vrL88XOC5oE1NyBZCcme65b++ja6sbouy+pF1Bz+5admOy5bu2la+e79+HXOwJqbs+yE5M91629dO1CQM0JqLkjIKAD2YnJngtPTPZct/Z1F95joOYE1Fy8Yl3bedxz5wn5mx0BNbdn2YnJnutWsa69Ot28dunybHH7XfECam7fshOTPdetsi+k/+rl27d/f7a4fQNUQM3tXXZisue6Va5ry5ugW+8+hSSg5vYvOzHZc90q2LVXz9b5PPn9yI6Amtuz7MRkz3WrZNcuf1p9mt2HX/5jbEdAze1ZdmKy57p1qK4JqLl9y05M9ly3BHQgOzHZc+GJyZ7rloAOZCcmey48Mdlz3RLQgezEZM+FJyZ7rlsCOpCdmOy58MRkz3VLQAeyE5M9F56Y7LluCehAdmKy58ITkz3XLQEdyE5M9lx4YrLnuiWgA9mJyZ4LT0z2XLcEdCA7Mdlz4YnJnuuWgA5kJyZ7Ljwx2XPdEtCB7MRkz4UnJnuuWwI6kJ2Y7LnwxGTPdUtAB7ITkz0XnpjsuW4J6EB2YrLnwhOTPdctAR3ITkz2XHhisue6JaAD2YnJngtPTPZctwR0IDsx2XPhicme65aADmQnJnsuPDHZc90S0IHsxGTPhScme65bAjqQnZjsufDEZM91S0AHshOTPReemOy5bgnoQHZisufCE5M91y0BHchOTPZceGKy57oloAPZicmeC09M9ly3BHQgOzHZc+GJyZ7rloAOZCcmey48Mdlz3RLQgezEZM+FJyZ7rlsCOpCdmOy58MRkz3VLQAeyE5M9F56Y7LluCehAdmIOPPergzvw4WXPRf+PV4yADmQXTUDLHl72XPT/eMUI6EB20Q4e0IPOxRctee7ge6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4dWYeXrMAABHeSURBVNBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ6346AHt1c+HXQXM97pQjoQHbRBNRco3MCet+OgB7dXPh10FzPe6UI6EB20QTUXKNzAnrfjoAe3Vz4ddBcz3ulCOhAdtEE1FyjcwJ63868oX8eXOHjvu/wkufCr4Pmyu4dWKGfW0AFdF8E1NwD9gT0vTtzA1r452hrL3tOQM21uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3sudcB821uieg+5FdNAE11+hct4cnoDX3fhXuoGfm24NfB//9kHotTJt7ArofAlrUQc/MtwJa9OgOOnf4//EKfSMBrbnX66Wmybnww8ue6/bwBLTmXq+Xmibnwg8ve67bwxPQmnu9XmqanAs/vOy5bg9PQGvu9XqpaXIu/PCy57o9PAGtudfrpabJufDDy57r9vAEtOZer5eaJufCDy97rtvDE9Cae71eapqcCz+87LluD09Aa+71eqlpci788LLnuj08Aa251+ulpsm58MPLnuv28AS05l6vl5om58IPL3uu28MT0Jp7vV5qmpwLP7zsuW4PT0Br7vV6qWlyLvzwsue6PTwBrbnX66Wmybnww8ue6/bwBLTmXq+Xmibnwg8ve67bwxPQmnu9XmqanAs/vOy5bg9PQGvu9XqpaXIu/PCy57o9PAGtudfrpabJufDDy57r9vAEtOZer5eaJufCDy97rtvDE9Cae71eapqcCz+87LluD09Aa+71eqlpci788LLnuj08Aa251+ulpsm58MPLnuv28AS05l6vl5om58IPL3uu28MT0Jp7vV5qmpwLP7zsuW4PT0Br7vV6qWlyLvzwsue6PTwBrbnX66Wmybnww8ue6/bwBLTmXq+Xmibnwg8ve67bwxPQmnu9XmqanAs/vOy5bg9PQGvu9XqpaXIu/PCy57o9PAGtudfrpabJufDDy57r9vAEtOZer5eaJufCDy97rtvDE9Cae71eapqcCz+87LluD09Aa+71eqlpci788LLnuj08Aa251+ulpsm58MPLnuv28AS05l6vl5om58IPL3uu28MrGtDXX58uFieffT+2I6Ajer3UNDkXfnjZc90eXsmA/rjM58rJ70d2BHREr5eaJufCDy97rtvDKxjQi8XW89s7Ajqi10tNk3Phh5c91+3hlQvom6eLxUfLe+9/f7ZYfPDDrR0BHdHrpabJufDDy57r9vDKBfR8sfj45eqLyxeLxZNbOwI6otdLTZNz4YeXPdft4RUL6DKbJ99cf/nqdJ3S3R0BHdHrpabJufDDy57r9vCKBXR5D35TzZ2W3uwI6IheLzVNzoUfXvZct4dXLKAXi8Unm6/Pbj+NJKBjer3UNDkXfnjZc90eXsmAbh/4PBfQaXq91DQ5F3542XPdHl6xgO5Gczem25c2zfquvwIo7/HJu+5boe8joEA/Hp+8674V+j57CihAu/Ye0M2OgAJpBBRgpsafhQdoV+OvAwVo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bcRpAd399pMCOvLzwCgB5eDevQW6c5d+o+At0Ovbkx9++rs//N+nkwMqmkwioBzcyGOg777aciSgu4+Brp/1mRTQ8+2r4d/cFdDbj4F69SeTCCgHt3450cpVFFdPi7/zbvexgI49C39/QHdyeXHXXfjBK50+Gft5YJSAcnCvti9PX6d0mcYPbl41P0zj+18H+pCArl5jPx7Qm+98XebbPw+MElAO7upJms++v3mjz+phytVbg97+8u3i3TTe8U6kq8cAJt2FP7u+C3/1b139/dsB3bwTafXWpM3DpsOfB0YJKAe3zNaHu68r2n7o/Pbt6uMBHXkv/ISA7n7vuwK6852fjP48MEpAObjVA43rRH20fiz04nTYq9GAjnwa05SXMX27ieeX149tjgT05js/Gf95YJSAcnDXr116tvuJnct72KvP3/zwy/UHhI4HdPt5oG/f/VvvfSH91b/04fLO//WTRWMBvf480MWnN58HOvx5YJSAcnDeHkkKAeXgBJQUAsrBCSgpBJSDE1BSCCgHJ6CkEFAOTkBJIaAAMwkowEwCCjCTgALMJKAAMwkowEwCCjCTgALMJKAAMwkowEwCCjCTgALMJKAAMwkowEwCCjDT/wfkMXq+WCQUUAAAAABJRU5ErkJggg==" width="672" /></p>
+<pre class="r"><code>### check for equal variances
+### p value above 0.05 indicate no violation of the assumption
+### of equal variance
+
+levene_test(df, performance ~ group)  ### performance by group</code></pre>
+<pre><code>## # A tibble: 1 x 4
+##     df1   df2 statistic     p
+##   &lt;int&gt; &lt;int&gt;     &lt;dbl&gt; &lt;dbl&gt;
+## 1     1    98    0.0891 0.766</code></pre>
+<pre class="r"><code>### If Levene&#39;s test returns a p-value above 0.05 then my assumption
+### of equal variance is not violated.
+### time for the t-test statistic calculation
+### var.equal = TRUE declares that we have equal variance
+### therefore we can use Student&#39;s t-test
+### var.equal = FALSE declares that we have unequal variance
+### therefore we should use Welch&#39;s t-test</code></pre>
+<p>By looking at our output we see that the two groups are normally distributed and have equal variance. We will therefore run <strong>Student’s t-test</strong>. We do that by using the argument <code>var.equal = TRUE</code>. It is also worth noting here that our example above utilised a between-participants design. If we wanted to carry out a t-test for within-participants data then all we had to do was to add the argument <code>paired = TRUE</code>.</p>
+<pre class="r"><code>t_test(df, performance~group, var.equal = TRUE)</code></pre>
+<pre><code>## # A tibble: 1 x 8
+##   .y.         group1 group2    n1    n2 statistic    df        p
+## * &lt;chr&gt;       &lt;chr&gt;  &lt;chr&gt;  &lt;int&gt; &lt;int&gt;     &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
+## 1 performance 1      2         50    50     -11.3    98 1.77e-19</code></pre>
+</div>
 </div>
 </div>
 <div id="task-1" class="section level1">
 <h1>Task 1</h1>
-<p>Here we are going to test whether or not there is a difference in the overall stress levels at time one and time two. Before doing this, you must obtain descriptive statistics (Mean, Standard deviation, Variance, Kurtosis and Skewness) for STRESS1 and STRESS2 and produce a histogram for each of the variables. Once these statistics and histograms have been generated, carry out the repeated measures <em>t</em>-test.</p>
+<p>For Task 1 you will need to work with the datafile <strong>stress.sav</strong>. You can find the file on Moodle in the folder called <strong>ALL WEEKS - R files for computing exercises</strong>. This is an SPSS datafile so make sure you use the correct package to load it as a dataframe.<br />
+Once you load the file make sure that grouping variables are correctly identified as factors (hint: <code>as.factor()</code>)</p>
+<pre class="r"><code>### the haven package allows you to read SPSS datafiles
+### make sure to install the haven package before using library
+
+library(haven)
+df &lt;- read_sav(&quot;stress.sav&quot;)</code></pre>
+<p>Here we are going to test whether or not there is a difference in the overall stress levels at time one and time two. Before doing this, you must obtain descriptive statistics (Mean, Standard deviation, Variance, Kurtosis and Skewness) for STRESS1 and STRESS2 and produce a histogram for each of the variables. Once these statistics and histograms have been generated, carry out the repeated measures <strong>t-test</strong>.</p>
 <p>Q1) Will you be using a paired-samples or an independent-samples t-test?</p>
 <p>Q2) Which argument did you use for running the correct t-test?</p>
 <p>Q3) What are the assumptions of this test and judging from the histograms and variances, to what extent are these assumptions violated by the data?</p>
 <p>Q4) What is the Null Hypothesis for this test?</p>
 <p>Q5) Can it be rejected?________. Fill in : t ( ) = ______, ______</p>
+</div>
+<div id="task-2" class="section level1">
+<h1>Task 2:</h1>
+<p>We are now going to test whether there is a difference in stress levels between males and females at time 1 (an independent t-test). Carry out the appropriate checks and t-test in order to answer the following questions.</p>
+<p>Q1) What are the assumptions of this test and judging from the histograms, descriptive information and Levene’s test, to what extent are they violated by the data?</p>
+<p>Q2) Which arguments will you use within your <strong>t_test()</strong>?</p>
+<p>Q3) What is the Null Hypothesis for this test?</p>
+<p>Q4) Can it be rejected?________. Fill in : t ( ) = ______, ______.</p>
+</div>
+<div id="task-3" class="section level1">
+<h1>Task 3</h1>
+<p>For this task, you are required to carry out a t-test investigating the difference between stress levels at time 1 and stress levels at time 2 but only with patients</p>
+<p>Q1) What sort of t-test are you using here and what is it doing?</p>
+<p>Q2) To what extent are the test’s assumptions violated by the data here?</p>
+<p>Q3) What is the Null Hypothesis for this test?</p>
+<p>Q4) Can it be rejected?________. Fill in : t ( ) = ______, ______</p>
+</div>
+<div id="task-4" class="section level1">
+<h1>Task 4</h1>
+<p>Once you have finished task 3, make sure you are now working on all the data. Now produce descriptive statistics and histograms for patients and spouses at time 1. Use the appropriate t-test to compare these two conditions at time 1.</p>
+<p>Q1) What sort of t-test are you using and what is it doing? Q2) To what extent are the test’s assumptions violated by the data? Q3) What is the Null Hypothesis for this test? Q4) Can it be rejected?________. Fill in : t ( ) = ______, ______</p>
 </div>
 
 
