@@ -10,7 +10,100 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Introduction
-In today's session we want you to revisit the *t*-test methods you used in your Stage 1. Use the **Stress.csv** data file and the appropriate arguments for the **t_test()** function.
+In today's session we want you to revisit the *t*-test methods you used in your Stage 1. Use the **Stress.csv** data file and the appropriate arguments for the **t_test()** function. Before doing that have a look at the brief refresher below on how to check the t-test assumptions and we carry out the appropriate t-test.
+
+
+## T-test preliminary steps and assumptions
+
+1. Normality assumption  
+  1.1 Shapiro test  
+  1.2 qq-plot  
+  1.3 Skewness and Kurtosis  
+2. Equal variance assumption  
+  2.1 Calculate variance or standard deviation  
+  2.2 Levene's test  
+3. Carry out the appropriate t-test
+
+## Let us have a look at how we can carry our these checks using the datafile **student t test.csv**. 
+
+```{r example, echo=TRUE, message=FALSE, warning=FALSE}
+library(rstatix)
+library(tidyverse)
+library(ggpubr)
+
+### load file
+df <- read_csv("student t test.csv")
+
+### group as factor
+df$group <- as.factor(df$group)
+
+### descriptives
+group_by(df, group) %>% 
+  get_summary_stats(performance, type = "mean_sd") %>% 
+  ungroup()
+
+### check whether our scores are normally distributed
+### using Shapiro Wilk test
+### p values above 0.05 indicate normally distributed scores
+df %>%
+  group_by(group) %>%
+  shapiro_test(performance) %>% ### Checks for normality
+  ungroup()
+
+### For Shapiro Wilk test we want to see p values above 0.05
+### if both p values come back above 0.05 then you can proceed
+
+
+### we can also inspect for normality using a qq plot
+### this is a plot that show how our scores are correlated
+### to a normal distribution
+### visually if all our scores fall into the grey area indicate
+### that they are normally distributed
+
+ggqqplot(df, x = "performance", facet.by = "group")
+
+
+### we can also get skewness and kurtosis information
+### for that we need to have installed the moments package
+
+### make sure  you install the package moments before proceeding
+
+### you can do so by running install.packages("moments") 
+### you should run this line only once
+library(moments)
+
+df %>%
+  group_by(group) %>%
+  summarise(Skew = skewness(performance),
+            Kurt = kurtosis(performance))
+
+
+### check for equal variances
+### p value above 0.05 indicate no violation of the assumption
+### of equal variance
+
+levene_test(df, performance ~ group)  ### performance by group
+
+### If Levene's test returns a p-value above 0.05 then my assumption
+### of equal variance is not violated.
+### time for the t-test statistic calculation
+### var.equal = TRUE declares that we have equal variance
+### therefore we can use Student's t-test
+### var.equal = FALSE declares that we have unequal variance
+### therefore we should use Welch's t-test
+
+```
+
+
+
+By looking at our output we see that the two groups are normally distributed and have equal variance. We will therefore run **Student's t-test**.
+
+```{r example student's}
+t_test(df, performance~group, var.equal = TRUE)
+```
+
+
+
 
 
 
