@@ -24,7 +24,7 @@ In today's session we want you to revisit the *t*-test methods you used in your 
   2.2 Levene's test  
 3. Carry out the appropriate t-test
 
-### Let us have a look at how we can carry our these checks using the datafile **student t test.csv**. 
+### Let us have a look at how we can carry out these checks using the datafile **student t test.csv**. 
 
 ```{r example, echo=TRUE, message=FALSE, warning=FALSE}
 library(rstatix)
