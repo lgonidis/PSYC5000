@@ -74,12 +74,15 @@ library(moments)
 
 df %>%
   group_by(group) %>%
-  summarise(Skew = skewness(performance),
-            Kurt = kurtosis(performance)) %>% 
+  summarise(Skew = skewness(performance, na.rm = TRUE),
+            Kurt = kurtosis(performance, na.rm = TRUE)) %>% 
   ungroup()
 
 ### for normality we are looking for skewness values
-### between 2 and -2
+### between 2 and -2 and kurtosis between -7 and 7
+### the argument na.rm = TRUE removes missing values
+### if there are missing values and we do not remove them
+### the function will return NA (no answer)
 
 
 ### we can also inspect visually by looking at histograms
@@ -146,7 +149,7 @@ Q5) Can it be rejected?________. Fill in :  t (     ) = ______, ______
 
 # Task 2:  
 
-We are now going to test whether there is a difference in stress levels between males and females at time 1 (an independent t-test). Carry out the appropriate checks and t-test in order to answer the following questions.
+We are now going to test whether there is a difference in stress levels between males (gender=1) and females (gender=2) at time 1 (an independent t-test). Carry out the appropriate checks and t-test in order to answer the following questions.
 
 Q1) What are the assumptions of this test and judging from the histograms, descriptive information and Levene’s test, to what extent are they violated by the data? 
 
@@ -159,7 +162,7 @@ Q4) Can it be rejected?________. Fill in :  t (     ) = ______, ______.
 
 # Task 3  
 
-For this task, you are required to carry out a t-test investigating the difference between stress levels at time 1 and stress levels at time 2 but only with patients
+For this task, you are required to carry out a t-test investigating the difference between stress levels at time 1 and stress levels at time 2 but only with patients (role=1)
 
 Q1) What sort of t-test are you using here and what is it doing?
 
@@ -172,7 +175,7 @@ Q4) Can it be rejected?________. Fill in :  t (     ) = ______, ______
 # Task 4
 
 
-Once you have finished task 3, make sure you are now working on all the data.  Now produce descriptive statistics and histograms for patients and spouses at time 1. Use the appropriate t-test to compare these two conditions at time 1. 
+Once you have finished task 3, make sure you are now working on all the data.  Now produce descriptive statistics and histograms for patients (role=1) and spouses (role=2) at time 1. Use the appropriate t-test to compare these two conditions at time 1. 
 
 Q1) What sort of t-test are you using and what is it doing?  
 
@@ -182,5 +185,279 @@ Q3) What is the Null Hypothesis for this test?
 Q4) Can it be rejected?________. Fill in :  t (     ) = ______, ______
 
 
+# Answers
+
+## Task 1  
+
+In order to run the required analysis we need to bring the datafile to long format. Furthermore, for paired-samples *t*-test we do not check for normality. However, we can draw histograms for visual inspection.
+
+Q1) We will  be using a paired samples *t*-test  
+
+Q2) We have to use the argument `paired = TRUE`  
+
+Q3) Our scores need to be normally distributed with equal variance
+
+Q4) The two means are equal  
+
+Q5) Yes we can reject the null hypothesis. *t*(97) = 2.26, p = .026 
+
+## Task 1 Analysis Code
+
+```{r task 1, echo=TRUE, message=FALSE, warning=FALSE}
+library(rstatix)
+library(tidyverse)
+library(ggpubr)
+library(haven)
+
+### load file
+df <- read_sav("stress.sav")
+
+## as our datafile is in wide format we need to bring it long format
+
+library(tidyverse)
+
+df_long1 <- pivot_longer(df, cols = stress1:stress2, names_to = "session", values_to = "score")
+
+df_long1
+
+### set time as factor variable
+
+df_long1$session <- as.factor(df_long1$session)
 
 
+### descriptives
+group_by(df_long1, session) %>% 
+  get_summary_stats(score, type = "mean_sd") %>% 
+  ungroup()
+
+
+### we can inspect visually by looking at histograms
+gghistogram(df_long1, "score", bins = 10, color = "session")
+
+
+### we can also get skewness and kurtosis information
+
+library(moments)
+
+df_long1 %>%
+  group_by(session) %>%
+  summarise(Skew = skewness(score, na.rm = TRUE),
+            Kurt = kurtosis(score, na.rm = TRUE)) %>% 
+  ungroup()
+
+### for normality we are looking for skewness values
+### between 2 and -2
+
+
+### check for equal variances
+### p value above 0.05 indicate no violation of the assumption
+### of equal variance
+
+levene_test(df_long1, score ~ session)  ### performance by group
+
+### carry out the t-test using paired = TRUE
+t_test(df_long1, score~session, var.equal = TRUE, paired = TRUE)
+
+```
+
+## Task 2
+
+Q1) We will  be using an independent samples *t*-test  
+
+Q2) The assumptions seem to hold. The Levene's test returns a value close to .05 (.056) but still above .05. We will therefore assume equal variance.  
+
+Q3) The two means are equal.  
+
+Q4) No we cannot reject the null hypothesis. *t*(273) = 3.73, *p* = .0503. Even though this is marginally above .05 
+
+
+## Task 2 Analysis Code
+
+```{r task 2, echo=TRUE, message=FALSE, warning=FALSE}
+library(rstatix)
+library(tidyverse)
+library(ggpubr)
+library(haven)
+
+
+
+### We will continue working with df_long1
+
+df_long1$gender <- as.factor(df_long1$gender)
+
+### descriptives
+group_by(df_long1, gender) %>% 
+  get_summary_stats(score, type = "mean_sd") %>% 
+  ungroup()
+
+
+### we can inspect visually by looking at histograms
+gghistogram(df_long1, "score", bins = 10, facet.by = "gender")
+
+
+### we can also get skewness and kurtosis information
+
+library(moments)
+
+df_long1 %>%
+  group_by(gender) %>%
+  summarise(Skew = skewness(score, na.rm = TRUE),
+            Kurt = kurtosis(score, na.rm = TRUE)) %>% 
+  ungroup()
+
+### for normality we are looking for skewness values
+### between 2 and -2
+
+
+### check for equal variances
+### p value above 0.05 indicate no violation of the assumption
+### of equal variance
+
+levene_test(df_long1, score ~ gender)  ### performance by group
+
+### carry out the t-test using paired = TRUE
+t_test(df_long1, score~gender, var.equal = TRUE)
+
+```
+
+## Task 3  
+
+Q1) Paired-sampled *t*-test comparing the scores between session 1 and session 2 but only for patients. To do that we retained only the rows of df_long1 that had role equal to 1. Remember this is a logical comparison therefore we used `==`.
+
+Q2) The assumptions seem to hold. 
+
+Q3) That the means are equal 
+
+Q4) Yes we can reject the null hypothesis. *t*(61) = 2.14, *p* = .037
+
+
+## Task 3 Analysis Code
+
+```{r task 3, echo=TRUE, message=FALSE, warning=FALSE}
+library(rstatix)
+library(tidyverse)
+library(ggpubr)
+library(haven)
+
+df_long3 <- filter(df_long1, role == 1)
+
+df_long3
+
+### descriptives
+group_by(df_long3, session) %>% 
+  get_summary_stats(score, type = "mean_sd") %>% 
+  ungroup()
+
+
+### we can inspect visually by looking at histograms
+gghistogram(df_long3, "score", bins = 10, facet.by = "session")
+
+
+### we can also get skewness and kurtosis information
+
+library(moments)
+
+df_long3 %>%
+  group_by(session) %>%
+  summarise(Skew = skewness(score, na.rm = TRUE),
+            Kurt = kurtosis(score, na.rm = TRUE)) %>% 
+  ungroup()
+
+### for normality we are looking for skewness values
+### between 2 and -2
+
+
+### check for equal variances
+### p value above 0.05 indicate no violation of the assumption
+### of equal variance
+
+levene_test(df_long3, score ~ session)  ### performance by group
+
+### carry out the t-test using paired = TRUE
+t_test(df_long3, score~session, var.equal = TRUE, paired = TRUE)
+
+```
+
+## Task 4  
+
+Q1) We will be using an independent samples *t*-test to compare patients and spouses, but only for at session 1. We will therefore, use filter again but for session this time.
+
+Q2) The assumptions seem to hold  
+
+Q3) There is no difference between the means 
+
+Q4) No it cannot be rejected. *t*(173) = -1.39, *p* = .168
+
+
+
+
+
+
+## Task 4 Analysis Code
+
+```{r task 4, echo=TRUE, message=FALSE, warning=FALSE}
+library(rstatix)
+library(tidyverse)
+library(ggpubr)
+library(haven)
+
+
+### select only the stress1 time
+df_long4 <- filter(df_long1, session == "stress1")
+
+df_long4$role <-as.factor(df_long4$role)
+
+### descriptives
+group_by(df_long4, role) %>% 
+  get_summary_stats(score, type = "mean_sd") %>% 
+  ungroup()
+
+
+### we can inspect visually by looking at histograms
+gghistogram(df_long4, "score", bins = 10, facet.by = "role")
+
+
+### check whether our scores are normally distributed
+### using Shapiro-Wilk test
+### p values above 0.05 indicate normally distributed scores
+df_long4 %>%
+  group_by(role) %>%
+  shapiro_test(score) %>% ### Checks for normality
+  ungroup()
+
+### For Shapiro Wilk test we want to see p values above 0.05
+### if both p values come back above 0.05 then you can proceed
+
+
+### we can also inspect for normality using a qq plot
+### this is a plot that show how our scores are correlated
+### to a normal distribution
+### visually if all our scores fall into the grey area indicate
+### that they are normally distributed
+
+ggqqplot(df_long4, x = "score", facet.by = "role")
+
+
+
+### we can also get skewness and kurtosis information
+
+library(moments)
+
+df_long4 %>%
+  group_by(role) %>%
+  summarise(Skew = skewness(score, na.rm = TRUE),
+            Kurt = kurtosis(score, na.rm = TRUE)) %>% 
+  ungroup()
+
+
+
+### check for equal variances
+### p value above 0.05 indicate no violation of the assumption
+### of equal variance
+
+levene_test(df_long4, score ~ role)  ### performance by group
+
+### carry out the t-test using paired = TRUE
+t_test(df_long4, score~role, var.equal = TRUE)
+
+```
