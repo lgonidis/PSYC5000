@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Introduction</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: #990073
+   }
+
+   pre .number {
+     color: #099;
+   }
+
+   pre .comment {
+     color: #998;
+     font-style: italic
+   }
+
+   pre .keyword {
+     color: #900;
+     font-weight: bold
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: #d14;
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h2>Introduction</h2>
+
+<p>In today&#39;s session we will be working on a priori and post-hoc testing. We will initially look at a task where we can carry out a post-hoc analysis by performing multiple <em>t</em>-tests and correcting our <em>p</em>-values. As mentioned last week we have different packages and functions available to carry out an analysis of variance. This week we will be working with the following packages and functions.   </p>
+
+<p><code>library(haven) ### used to load SPSS .sav files, read_sav()</code><br/>
+<code>library(tidyverse) ### for general purpose functions</code><br/>
+<code>library(rstatix) ### used for our ANOVA, anova_test()</code><br/>
+<code>library(ggpubr) ### used for graphs such as gghistogram()</code>
+<code>library(gmodels) ### used for fit.contrast() to create contrasts</code>   </p>
+
+<p>In this week&#39;s exercise we are only going to use one data file which is <strong>epinex7.sav</strong>. This file can be found on moodle. This is the same experiment as in task 1 of exercise on one-way anova using mice. This time, however, the dosages are 0.0 mg, 300 mg and 500 mg. Here, as well as the one-way ANOVA you carried out in the earlier, you are going to carry out Post Hoc and A Priori tests which can tell exactly which conditions are significantly different from each other. </p>
+
+<h2>Task 1.</h2>
+
+<p>Run a One-way ANOVA on the data in <strong>epinex7.sav</strong>. The experimenter wants to know which of the three conditions are different from one another, something the ANOVA cannot tell us directly. Use t-tests with the Bonferroni adjustment to find out. You should be able to complete this task using your knowledge of carrying out one-way anova and <em>t</em>-tests. You should also check for assumptions we did in previous weeks. We will not be including that below.</p>
+
+<p>Q1) The results of the ANOVA are : <em>F</em>(<strong><em>,</em></strong><strong>)= __</strong><strong><em>, _</em></strong>_<strong><em>, _</em></strong>___<br/>
+Q2) What are the means, standard deviations and Ns for each DOSAGE condition?<br/>
+Q3) Is there a significant difference between DOSAGE conditions?<br/>
+Q4) What is the family of comparisons for this post hoc test?<br/>
+Q5) What is the familywise error rate for the post hoc test?<br/>
+Q6) What can you conclude from the <em>t</em>-tests (verbally, no numbers)?           </p>
+
+<h2>Task 1: Solution</h2>
+
+<pre><code class="r">library(haven) ### used to load SPSS .sav files, read_sav()
+library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+
+data &lt;- read_sav(&quot;epinex7.sav&quot;)
+data
+</code></pre>
+
+<pre><code>## # A tibble: 121 x 3
+##      SNO     DOSAGE ERRORS
+##    &lt;dbl&gt;  &lt;dbl+lbl&gt;  &lt;dbl&gt;
+##  1     1 1 [0.0 mg]      0
+##  2     2 1 [0.0 mg]      3
+##  3     3 1 [0.0 mg]      4
+##  4     4 1 [0.0 mg]      2
+##  5     5 1 [0.0 mg]      3
+##  6     6 1 [0.0 mg]      3
+##  7     7 1 [0.0 mg]      4
+##  8     8 1 [0.0 mg]      0
+##  9     9 1 [0.0 mg]      5
+## 10    10 1 [0.0 mg]      4
+## # ... with 111 more rows
+</code></pre>
+
+<pre><code class="r">### always remember to set your variables as factors where necessary
+data$DOSAGE &lt;- as.factor(data$DOSAGE)
+
+### get mean and sd for our DV grouped by dosage level
+data %&gt;% 
+  group_by(DOSAGE) %&gt;% 
+  get_summary_stats(ERRORS, type = &quot;mean_sd&quot;)
+</code></pre>
+
+<pre><code>## # A tibble: 3 x 5
+##   DOSAGE variable     n  mean    sd
+##   &lt;fct&gt;  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 1      ERRORS      42  3.14  1.52
+## 2 2      ERRORS      42  4.81  1.25
+## 3 3      ERRORS      37  4.11  1.43
+</code></pre>
+
+<pre><code class="r">## anova time
+# first describe the model
+anova.model &lt;- anova_test(
+  data = data, 
+  dv = ERRORS, 
+  wid = SNO,  ## this is our participant id variable
+  between = DOSAGE,
+  type = 3,
+  detailed = TRUE
+)
+
+# then get the anova table
+get_anova_table(anova.model)
+</code></pre>
+
+<pre><code>## ANOVA Table (type III tests)
+## 
+##        Effect      SSn     SSd DFn DFd       F        p p&lt;.05   ges
+## 1 (Intercept) 1948.601 233.187   1 118 986.055 3.92e-59     * 0.893
+## 2      DOSAGE   58.780 233.187   2 118  14.872 1.74e-06     * 0.201
+</code></pre>
+
+<pre><code class="r"># You can manually calculate the MSE by dividing
+## SSd and DFd. Make sure you specify the second line 
+## of your anova.model by typing [2,]
+MSE &lt;- anova.model[2,&quot;SSd&quot;]/(anova.model[2,&quot;DFd&quot;])
+MSE
+</code></pre>
+
+<pre><code>## [1] 1.976161
+</code></pre>
+
+<pre><code class="r">## manually carrying out t-tests for post-hoc analysis
+## we will need to compare all conditions
+## this means in each t-test we will be excluding one condition
+
+
+t_test(data, ERRORS ~ DOSAGE, 
+       var.equal = TRUE, paired = FALSE,
+       comparisons = list(c(&quot;1&quot;, &quot;2&quot;),
+                          c(&quot;2&quot;, &quot;3&quot;),
+                          c(&quot;1&quot;, &quot;3&quot;)),
+       p.adjust.method = &quot;none&quot;)
+</code></pre>
+
+<pre><code>## # A tibble: 3 x 10
+##   .y.   group1 group2    n1    n2 statistic    df       p   p.adj p.adj.signif
+## * &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;  &lt;int&gt; &lt;int&gt;     &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;       
+## 1 ERRO~ 1      2         42    42     -5.47    82 4.68e-7 4.68e-7 ****        
+## 2 ERRO~ 2      3         42    37      2.32    77 2.3 e-2 2.3 e-2 *           
+## 3 ERRO~ 1      3         42    37     -2.89    77 5   e-3 5   e-3 **
+</code></pre>
+
+<p>Q1) The results of the ANOVA are : F(<strong><em>,</em></strong><strong>)= __</strong><strong><em>, _</em></strong>_<strong><em>, _</em></strong>___<br/>
+<strong>The ANOVA is significant, F(2,118) = 14.872, MSE = 1.976, p &lt; .001.</strong> </p>
+
+<p>Q2) What are the means, standard deviations and Ns for each DOSAGE condition?<br/>
+<strong>For 0mg condition, M = 3.14, SD = 1.52, N = 42; for 300mg condition, M = 4.81, SD = 1.25, N = 42; for 500mg condition, M = 4.11, SD = 1.43, N = 37.</strong>   </p>
+
+<p>Q3) Is there a significant difference between DOSAGE conditions?<br/>
+<strong>Yes, the ANOVA tells us that at least one condition must be significantly different from at least one other condition. But it doesn’t tell us which ones!</strong>   </p>
+
+<p>Q4) What is the family of comparisons for this post hoc test?
+*<em>There are three comparisons here: 0mg vs. 300mg, 0mg vs. 500mg, and 300mg vs. 500mg. *</em></p>
+
+<p>Q5) What is the familywise error rate for the post hoc test? 
+<strong>The familywise error rate is 1 - (1 - .05)<sup>k</sup>, where k = the number of comparisons you do. With three comparisons, the error rate is .14</strong></p>
+
+<p>Q6) What can you conclude from the tests (verbally, no numbers)?<br/>
+<strong>The three t-tests show that the two drug conditions – 300mg and 500mg – are both significantly different from the 0mg control condition. The 300 and 500mg conditions are not significantly different from one another. Notice that the 300 and 500mg conditions would have been significantly different had we not applied the correction. You can replace &ldquo;none&rdquo; with &ldquo;boneferroni&rdquo; in the solution to see what happens</strong> </p>
+
+<h2>Task 2:</h2>
+
+<pre><code>Using the same data file as in task 1, carry out the ANOVA again but this time do a different post hoc test (Tukey’s Honestly Significant Difference test). 
+</code></pre>
+
+<p>Q1) Which conditions does Tukey’s HSD indicate as significantly different from one another?<br/>
+Q2) What is the family of comparisons for this post-hoc test?<br/>
+Q3) What is the familywise error rate for the post-hoc test?<br/>
+Q4) What can you conclude from the tests (verbally, no numbers)?    </p>
+
+<h2>Task 2: Solution</h2>
+
+<pre><code class="r">## The ANOVA script is the same as above
+## as we only changed our post-hoc analysis
+## this time we will use Tukey&#39;s HSD
+
+## tukey_hsd() can be used together with the aov()
+## for even greater conveneience
+## aov() is another option for carrying our our analysis of variance
+
+library(haven) ### used to load SPSS .sav files, read_sav()
+library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+
+data &lt;- read_sav(&quot;epinex7.sav&quot;)
+data
+</code></pre>
+
+<pre><code>## # A tibble: 121 x 3
+##      SNO     DOSAGE ERRORS
+##    &lt;dbl&gt;  &lt;dbl+lbl&gt;  &lt;dbl&gt;
+##  1     1 1 [0.0 mg]      0
+##  2     2 1 [0.0 mg]      3
+##  3     3 1 [0.0 mg]      4
+##  4     4 1 [0.0 mg]      2
+##  5     5 1 [0.0 mg]      3
+##  6     6 1 [0.0 mg]      3
+##  7     7 1 [0.0 mg]      4
+##  8     8 1 [0.0 mg]      0
+##  9     9 1 [0.0 mg]      5
+## 10    10 1 [0.0 mg]      4
+## # ... with 111 more rows
+</code></pre>
+
+<pre><code class="r">### always remember to set your variables as factors where necessary
+data$DOSAGE &lt;- as.factor(data$DOSAGE)
+
+
+aov(ERRORS ~ DOSAGE, df2) %&gt;% tukey_hsd()
+</code></pre>
+
+<pre><code>## # A tibble: 3 x 9
+##   term   group1 group2 null.value estimate conf.low conf.high       p.adj
+## * &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;       &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;       &lt;dbl&gt;
+## 1 DOSAGE 1      2               0    1.67     0.939    2.39   0.000000902
+## 2 DOSAGE 1      3               0    0.965    0.213    1.72   0.00801    
+## 3 DOSAGE 2      3               0   -0.701   -1.45     0.0509 0.0731     
+## # ... with 1 more variable: p.adj.signif &lt;chr&gt;
+</code></pre>
+
+<h2>The Study</h2>
+
+<p>For this exercise we are going to look at an experiment involving mice given different levels of a drug to see if their memory (of how to get through a maze) is affected.  The data file that we are going to use for task 1 of this exercise is <strong>epinex6.sav</strong> (found in the MOODLE-SP500-COMPUTING-data files). This data file has three columns. <strong>SNO</strong>, <strong>DOSAGE</strong> and <strong>ERRORS</strong>. These columns represent the subject number (in this case mouse number), dosage level of a drug called Epinephrine and how many errors (wrong turns) each mouse made in a maze that they had learnt previously. The experimenter hypothesised that a small amount of the Epinephrine (300mg) would improve the mice’s memory and subsequent performance but a very large amount (1000mg) would impair their memory and performance would deteriorate. In the experiment there were three conditions. A control condition where mice were not given any Epinephrine (this condition is labelled “1” in the DOSAGE column), a condition where a different set of mice were given 300mg before being placed in the maze (labelled “2” in DOSAGE) and the final condition where the dosage was 1000mg (labelled “3” in DOSAGE). Each mouse was randomly allocated to one of these three conditions.   </p>
+
+<p>Q1) Produce table of means, standard deviations, and N’s of the three conditions that the analysis compares.<br/>
+Q2) Produce the summary table of the Analysis of Variance.<br/>
+Q3) From the summary-table, what is the F-value and the p-value?<br/>
+Q4) Is there a significant difference between the dosage conditions?<br/>
+Q5) Has the experimenter’s hypothesis been supported? Why or Why not?<br/>
+Q6) From the histograms alone, describe the different effects of the drugs on each group.<br/>
+Q7) Calculate and report your MSE value?   </p>
+
+<h3>Task 2</h3>
+
+<p>The investigator who carried out the experiment in task 1 using mice, replicated it this time using rats. Data for this replicated study can be found in the data file <strong>epinex62.sav</strong>. Open this file and carry out the same analysis as task 1 (Histograms, ANOVA and descriptives) but this time using the new data. Note that the variable names are now in uppercase letters. This is actually not recommended and you should always use lowercase letters. </p>
+
+<p>Q1) Produce means, standard deviations, and N’s of the three conditions that the analysis compares.<br/>
+Q2) Produce a summary table of the Analysis of Variance.<br/>
+Q3) From the summary-table, what is the F-value and the p-value?<br/>
+Q4) Is there a significant difference between the DOSAGE conditions?<br/>
+Q5) Has the experimenter’s hypothesis been supported? Why or Why not?<br/>
+Q6) From the histograms alone, describe the different effect of the drugs on each group.<br/>
+Q7) Calculate and report your MSE value?    </p>
+
+<h2>Task 1 Solution</h2>
+
+<pre><code class="r">library(haven)
+library(tidyverse)
+library(rstatix)
+library(ggpubr)
+
+df &lt;- read_sav(&quot;epinex6.sav&quot;)
+df
+</code></pre>
+
+<pre><code>## # A tibble: 121 x 3
+##      sno     dosage errors
+##    &lt;dbl&gt;  &lt;dbl+lbl&gt;  &lt;dbl&gt;
+##  1     1 1 [0.0 mg]      0
+##  2     2 1 [0.0 mg]      3
+##  3     3 1 [0.0 mg]      4
+##  4     4 1 [0.0 mg]      2
+##  5     5 1 [0.0 mg]      3
+##  6     6 1 [0.0 mg]      3
+##  7     7 1 [0.0 mg]      4
+##  8     8 1 [0.0 mg]      0
+##  9     9 1 [0.0 mg]      5
+## 10    10 1 [0.0 mg]      4
+## # ... with 111 more rows
+</code></pre>
+
+<pre><code class="r">### always remember to set your variables as factors where necessary
+df$dosage &lt;- as.factor(df$dosage)
+
+### Question 1
+### get mean and sd for our DV grouped by dosage level
+df %&gt;% 
+  group_by(dosage) %&gt;% 
+  get_summary_stats(errors, type = &quot;mean_sd&quot;)
+</code></pre>
+
+<pre><code>## # A tibble: 3 x 5
+##   dosage variable     n  mean    sd
+##   &lt;fct&gt;  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 1      errors      42  3.14  1.52
+## 2 2      errors      42  4.81  1.25
+## 3 3      errors      37  2.11  1.50
+</code></pre>
+
+<pre><code class="r">### get histograms
+
+gghistogram(df, x = &quot;errors&quot;, facet.by = &quot;dosage&quot;, bins = 8)
+</code></pre>
+
+<p><img src="data:image/png;base64,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" alt="plot of chunk Task 1"/></p>
+
+<pre><code class="r">## anova time
+# first describe the model
+anova.model &lt;- anova_test(
+  data = df, 
+  dv = errors, 
+  wid = sno,  ## this is our participant id variable
+  between = dosage,
+  type = 3,
+  detailed = TRUE
+)
+</code></pre>
+
+<pre><code>## Coefficient covariances computed by hccm()
+</code></pre>
+
+<pre><code class="r"># Question 2
+# then get the anova table
+get_anova_table(anova.model)
+</code></pre>
+
+<pre><code>## ANOVA Table (type III tests)
+## 
+##        Effect      SSn     SSd DFn DFd       F        p p&lt;.05   ges
+## 1 (Intercept) 1355.911 241.187   1 118 663.376 2.90e-50     * 0.849
+## 2      dosage  147.970 241.187   2 118  36.197 5.51e-13     * 0.380
+</code></pre>
+
+<pre><code class="r">## You can manually calculate the MSE by dividing
+## SSd and DFd. Make sure you specify the second line 
+## of your anova.model by typing [2,]
+MSE &lt;- anova.model[2,&quot;SSd&quot;]/(anova.model[2,&quot;DFd&quot;])
+MSE
+</code></pre>
+
+<pre><code>## [1] 2.043958
+</code></pre>
+
+<p>Q1 and Q2 look at code above<br/>
+Q3) <em>F</em> = 36.197, <em>p</em> = 5.51 &times; 10<sup>-13</sup><br/>
+Q4) Yes<br/>
+Q5) No, while there are differences amongst the cell means, the pattern is inconsistent with the experimenter&#39;s hypotheses. Performance appears to have declined (i.e. more errors) in the 300mg condition and improved (i.e. fewer errors) in the 1000mg condition. However, follow-up analyses are needed to discern if these changes differ significantly from the control condition.<br/>
+Q6) 300mg seem to be normally distributed with 0mg and 1000mg looking more positively skewed. Mean number of errors is lowest in the 1000mg condition and highest in the 300mg condition.     </p>
+
+<h2>Task 2 Solution</h2>
+
+<pre><code class="r">library(haven)
+library(tidyverse)
+library(rstatix)
+library(ggpubr)
+
+df2 &lt;- read_sav(&quot;epinex62.sav&quot;)
+df2
+</code></pre>
+
+<pre><code>## # A tibble: 121 x 3
+##      SNO     DOSAGE ERRORS
+##    &lt;dbl&gt;  &lt;dbl+lbl&gt;  &lt;dbl&gt;
+##  1     1 1 [0.0 mg]      9
+##  2     2 1 [0.0 mg]      3
+##  3     3 1 [0.0 mg]      1
+##  4     4 1 [0.0 mg]      7
+##  5     5 1 [0.0 mg]      3
+##  6     6 1 [0.0 mg]      3
+##  7     7 1 [0.0 mg]      7
+##  8     8 1 [0.0 mg]      7
+##  9     9 1 [0.0 mg]      5
+## 10    10 1 [0.0 mg]      4
+## # ... with 111 more rows
+</code></pre>
+
+<pre><code class="r">### always remember to set your variables as factors where necessary
+df2$DOSAGE &lt;- as.factor(df2$DOSAGE)
+
+
+### Question 1
+### get mean and sd for our DV grouped by dosage level
+df2 %&gt;% 
+  group_by(DOSAGE) %&gt;% 
+  get_summary_stats(ERRORS, type = &quot;mean_sd&quot;)
+</code></pre>
+
+<pre><code>## # A tibble: 3 x 5
+##   DOSAGE variable     n  mean    sd
+##   &lt;fct&gt;  &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 1      ERRORS      42  5    2.20 
+## 2 2      ERRORS      42  5    0.765
+## 3 3      ERRORS      37  5.16 2.89
+</code></pre>
+
+<pre><code class="r">### get histograms
+
+gghistogram(df2, x = &quot;ERRORS&quot;, facet.by = &quot;DOSAGE&quot;, bins = 8)
+</code></pre>
+
+<p><img src="data:image/png;base64,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" alt="plot of chunk Task 2"/></p>
+
+<pre><code class="r">## anova time
+# first describe the model
+anova.model2 &lt;- anova_test(
+  data = df2, 
+  dv = ERRORS, 
+  wid = SNO,  ## this is our participant id variable
+  between = DOSAGE,
+  type = 3,
+  detailed = TRUE
+)
+</code></pre>
+
+<pre><code>## Coefficient covariances computed by hccm()
+</code></pre>
+
+<pre><code class="r">### Question 2
+# then get the anova table
+get_anova_table(anova.model2)
+</code></pre>
+
+<pre><code>## ANOVA Table (type III tests)
+## 
+##        Effect      SSn     SSd DFn DFd       F        p p&lt;.05   ges
+## 1 (Intercept) 3079.749 523.027   1 118 694.821 2.82e-51     * 0.855
+## 2      DOSAGE    0.675 523.027   2 118   0.076 9.27e-01       0.001
+</code></pre>
+
+<pre><code class="r">## You can manually calculate the MSE by dividing
+## SSd and DFd. Make sure you specify the second line 
+## of your anova.model by typing [2,]
+MSE &lt;- anova.model2[2,&quot;SSd&quot;]/(anova.model2[2,&quot;DFd&quot;])
+MSE
+</code></pre>
+
+<pre><code>## [1] 4.432432
+</code></pre>
+
+<p>Q1 and Q2 look at code above    </p>
+
+<p>Q3) <em>F</em> = 0.076, <em>p</em> = 0.927<br/>
+Q4) No<br/>
+Q5) No, there are no significant mean differences, which is inconsistent with the experimenter&#39;s hypotheses.<br/>
+Q6) 300mg look to be normally distributed, with 0mg positively skewed. 1000mg seems to be be uniform or even better a bimodal distribution.     </p>
+
+</body>
+
+</html>
