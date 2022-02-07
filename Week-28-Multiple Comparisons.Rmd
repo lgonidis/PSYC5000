@@ -156,153 +156,41 @@ aov(ERRORS ~ DOSAGE, df3) %>% tukey_hsd()
 ```
 
 
+Q1) Which conditions does Tukey’s HSD indicate are significantly different from one another?    
+**Just as before, the two drug conditions are significantly different from the no-drug condition (p < .001 & p < .01), but are not significantly different from one another.** 
+
+Q2)What is the family of comparisons for this post hoc test?   
+**There are three comparisons here: 0mg vs. 300mg, 0mg vs. 500mg, and 300mg vs. 500mg.** 
+
+Q3) What is the familywise error rate for the post hoc test?   
+**Again, it is .14.** 
+
+Q4) What can you conclude from the tests (verbally, no numbers)?   
+**Tukey’s HSD gives almost the same results as the Bonferroni-corrected t-tests above. Both methods correct for familywise error, but they do it in a different way. In this case the results don’t differ much. Don’t worry about what the differences actually are. Practically speaking, because of the way SPSS works, HSD is quicker when you want to compare all the conditions to one another. If for some reason you just want to look at a few comparisons (remember this will keep your familywise error low, which is good), then Bonferroni t-tests give you more flexibility.**    
+
+
+## Task 3: Contrasts   
+
+Here we are going to use contrasts as an a-priori comparison method. We are going to make two sets of comparisons. Firstly, we are going to compare the control condition with both treatment conditions at the same time. This type of contrast looks at the effect of the Epinephrine on the errors made without regard to the amount injected. It looks at whether the mice in the 300mg and 500mg dosages combined, differ from those in the control condition.  For our second contrast we want to look at the effect of 300mg compared with the effect of a 500mg dose.  Generate these contrasts and then answer the following.   
+
+Q1) What is the Family of comparisons for these contrasts?   
+
+Q2) What is the familywise error rate for these contrasts?   
+
+Q3) What can you conclude from these contrasts (Verbally, no numbers)?   
+Q4) Fill in :  t (____) = ____,_____   (For contrast one).   
+
+Q5) Fill in :  t (____) = ____,_____   (For contrast two).   
+
+Q6) What do these t-tests do?   
+
+Q7) Are the results of the contrasts different from Tukey’s HSD results in task 2? If so why do you think this is so?   
+
+Q8) What Contrast coefficients would you use to compare the 500mg condition with the control condition?:  ____,  _____,  _____   
 
 
 
-## The Study 
-
-For this exercise we are going to look at an experiment involving mice given different levels of a drug to see if their memory (of how to get through a maze) is affected.  The data file that we are going to use for task 1 of this exercise is **epinex6.sav** (found in the MOODLE-SP500-COMPUTING-data files). This data file has three columns. **SNO**, **DOSAGE** and **ERRORS**. These columns represent the subject number (in this case mouse number), dosage level of a drug called Epinephrine and how many errors (wrong turns) each mouse made in a maze that they had learnt previously. The experimenter hypothesised that a small amount of the Epinephrine (300mg) would improve the mice’s memory and subsequent performance but a very large amount (1000mg) would impair their memory and performance would deteriorate. In the experiment there were three conditions. A control condition where mice were not given any Epinephrine (this condition is labelled “1” in the DOSAGE column), a condition where a different set of mice were given 300mg before being placed in the maze (labelled “2” in DOSAGE) and the final condition where the dosage was 1000mg (labelled “3” in DOSAGE). Each mouse was randomly allocated to one of these three conditions.   
-
-Q1) Produce table of means, standard deviations, and N’s of the three conditions that the analysis compares.    
-Q2) Produce the summary table of the Analysis of Variance.    
-Q3) From the summary-table, what is the F-value and the p-value?     
-Q4) Is there a significant difference between the dosage conditions?     
-Q5) Has the experimenter’s hypothesis been supported? Why or Why not?      
-Q6) From the histograms alone, describe the different effects of the drugs on each group.    
-Q7) Calculate and report your MSE value?   
- 
 
 
 
-
-### Task 2
-The investigator who carried out the experiment in task 1 using mice, replicated it this time using rats. Data for this replicated study can be found in the data file **epinex62.sav**. Open this file and carry out the same analysis as task 1 (Histograms, ANOVA and descriptives) but this time using the new data. Note that the variable names are now in uppercase letters. This is actually not recommended and you should always use lowercase letters. 
-
-Q1) Produce means, standard deviations, and N’s of the three conditions that the analysis compares.    
-Q2) Produce a summary table of the Analysis of Variance.    
-Q3) From the summary-table, what is the F-value and the p-value?    
-Q4) Is there a significant difference between the DOSAGE conditions?     
-Q5) Has the experimenter’s hypothesis been supported? Why or Why not?     
-Q6) From the histograms alone, describe the different effect of the drugs on each group.    
-Q7) Calculate and report your MSE value?    
-
-
-
-
-## Task 1 Solution
-
-
-```{r Task 1, echo=TRUE}
-library(haven)
-library(tidyverse)
-library(rstatix)
-library(ggpubr)
-
-df <- read_sav("epinex6.sav")
-df
-
-
-### always remember to set your variables as factors where necessary
-df$dosage <- as.factor(df$dosage)
-
-### Question 1
-### get mean and sd for our DV grouped by dosage level
-df %>% 
-  group_by(dosage) %>% 
-  get_summary_stats(errors, type = "mean_sd")
-
-### get histograms
-
-gghistogram(df, x = "errors", facet.by = "dosage", bins = 8)
-
-
-
-## anova time
-# first describe the model
-anova.model <- anova_test(
-  data = df, 
-  dv = errors, 
-  wid = sno,  ## this is our participant id variable
-  between = dosage,
-  type = 3,
-  detailed = TRUE
-)
-
-# Question 2
-# then get the anova table
-get_anova_table(anova.model)
-
-
-## You can manually calculate the MSE by dividing
-## SSd and DFd. Make sure you specify the second line 
-## of your anova.model by typing [2,]
-MSE <- anova.model[2,"SSd"]/(anova.model[2,"DFd"])
-MSE
-
-```
-
-Q1 and Q2 look at code above      
-Q3) *F* = `r anova.model[2, "F"]`, *p* = `r anova.model[2, "p"]`     
-Q4) Yes         
-Q5) No, while there are differences amongst the cell means, the pattern is inconsistent with the experimenter's hypotheses. Performance appears to have declined (i.e. more errors) in the 300mg condition and improved (i.e. fewer errors) in the 1000mg condition. However, follow-up analyses are needed to discern if these changes differ significantly from the control condition.        
-Q6) 300mg seem to be normally distributed with 0mg and 1000mg looking more positively skewed. Mean number of errors is lowest in the 1000mg condition and highest in the 300mg condition.     
-
-
-## Task 2 Solution
-
-```{r Task 2, echo=TRUE}
-library(haven)
-library(tidyverse)
-library(rstatix)
-library(ggpubr)
-
-df2 <- read_sav("epinex62.sav")
-df2
-
-
-### always remember to set your variables as factors where necessary
-df2$DOSAGE <- as.factor(df2$DOSAGE)
-
-
-### Question 1
-### get mean and sd for our DV grouped by dosage level
-df2 %>% 
-  group_by(DOSAGE) %>% 
-  get_summary_stats(ERRORS, type = "mean_sd")
-
-### get histograms
-
-gghistogram(df2, x = "ERRORS", facet.by = "DOSAGE", bins = 8)
-
-
-
-## anova time
-# first describe the model
-anova.model2 <- anova_test(
-  data = df2, 
-  dv = ERRORS, 
-  wid = SNO,  ## this is our participant id variable
-  between = DOSAGE,
-  type = 3,
-  detailed = TRUE
-)
-
-### Question 2
-# then get the anova table
-get_anova_table(anova.model2)
-
-## You can manually calculate the MSE by dividing
-## SSd and DFd. Make sure you specify the second line 
-## of your anova.model by typing [2,]
-MSE <- anova.model2[2,"SSd"]/(anova.model2[2,"DFd"])
-MSE
-
-```
-
-Q1 and Q2 look at code above    
-
-Q3) *F* = `r anova.model2[2, "F"]`, *p* = `r anova.model2[2, "p"]`       
-Q4) No     
-Q5) No, there are no significant mean differences, which is inconsistent with the experimenter's hypotheses.        
-Q6) 300mg look to be normally distributed, with 0mg positively skewed. 1000mg seems to be be uniform or even better a bimodal distribution.     
 
