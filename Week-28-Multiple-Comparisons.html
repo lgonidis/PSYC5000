@@ -341,14 +341,77 @@ aov(ERRORS ~ DOSAGE, df3) %&gt;% tukey_hsd() </code></pre>
 <div id="task-3-contrasts" class="section level2">
 <h2>Task 3: Contrasts</h2>
 <p>Here we are going to use contrasts as an a-priori comparison method. We are going to make two sets of comparisons. Firstly, we are going to compare the control condition with both treatment conditions at the same time. This type of contrast looks at the effect of the Epinephrine on the errors made without regard to the amount injected. It looks at whether the mice in the 300mg and 500mg dosages combined, differ from those in the control condition. For our second contrast we want to look at the effect of 300mg compared with the effect of a 500mg dose. Generate these contrasts and then answer the following.</p>
-<p>Q1) What is the Family of comparisons for these contrasts?</p>
+<p>Q1)What is the Family of comparisons for these contrasts?</p>
 <p>Q2) What is the familywise error rate for these contrasts?</p>
 <p>Q3) What can you conclude from these contrasts (Verbally, no numbers)?<br />
-Q4) Fill in : t (____) = ____,_____ (For contrast one).</p>
-<p>Q5) Fill in : t (____) = ____,_____ (For contrast two).</p>
+Q4) Fill in : t (<strong><em>) = </em></strong>_,_____ (For contrast one).</p>
+<p>Q5) Fill in : t (<strong><em>) = </em></strong>_,_____ (For contrast two).</p>
 <p>Q6) What do these t-tests do?</p>
 <p>Q7) Are the results of the contrasts different from Tukey’s HSD results in task 2? If so why do you think this is so?</p>
 <p>Q8) What Contrast coefficients would you use to compare the 500mg condition with the control condition?: ____, _____, _____</p>
+</div>
+<div id="task-3-solution" class="section level2">
+<h2>Task 3: Solution</h2>
+<pre class="r"><code>library(haven) ### used to load SPSS .sav files, read_sav()
+library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+library(gmodels) ### used for fit.contrast 
+### you do not need to create a new dataframe
+
+df4 &lt;- read_sav(&quot;epinex7.sav&quot;)
+df4</code></pre>
+<pre><code>## # A tibble: 121 x 3
+##      SNO     DOSAGE ERRORS
+##    &lt;dbl&gt;  &lt;dbl+lbl&gt;  &lt;dbl&gt;
+##  1     1 1 [0.0 mg]      0
+##  2     2 1 [0.0 mg]      3
+##  3     3 1 [0.0 mg]      4
+##  4     4 1 [0.0 mg]      2
+##  5     5 1 [0.0 mg]      3
+##  6     6 1 [0.0 mg]      3
+##  7     7 1 [0.0 mg]      4
+##  8     8 1 [0.0 mg]      0
+##  9     9 1 [0.0 mg]      5
+## 10    10 1 [0.0 mg]      4
+## # ... with 111 more rows</code></pre>
+<pre class="r"><code>## specify factor variable
+df4$DOSAGE &lt;-as.factor(df4$DOSAGE)
+
+### declare your anova model
+res.aov &lt;- aov(ERRORS ~ DOSAGE, data = df4)
+
+### contrast of control vs both 300mg and 500mg dosages
+fit.contrast(res.aov, &quot;DOSAGE&quot;, c(1, -0.5, -0.5), df=TRUE )</code></pre>
+<pre><code>##                           Estimate Std. Error   t value     Pr(&gt;|t|)  DF
+## DOSAGE c=( 1 -0.5 -0.5 ) -1.315959  0.2686385 -4.898624 3.101087e-06 118
+## attr(,&quot;class&quot;)
+## [1] &quot;fit_contrast&quot;</code></pre>
+<pre class="r"><code>### contrast of 300mg vsd 500mg dosages
+fit.contrast(res.aov, &quot;DOSAGE&quot;, c(0, 1, -1), df=TRUE )</code></pre>
+<pre><code>##                      Estimate Std. Error  t value   Pr(&gt;|t|)  DF
+## DOSAGE c=( 0 1 -1 ) 0.7014157  0.3169559 2.212976 0.02882316 118
+## attr(,&quot;class&quot;)
+## [1] &quot;fit_contrast&quot;</code></pre>
+<p>Q1) What is the Family of comparisons for these contrasts?<br />
+<strong>1. control vs average of 300&amp; 500mg conditions</strong><br />
+<strong>2. 300mg vs 500mg</strong></p>
+<p>Q2) What is the familywise error rate for these contrasts?<br />
+<strong>1 - (1 - .05)<sup>2</sup> = .0975</strong></p>
+<p>Q3) What can you conclude from these contrasts (Verbally, no numbers)?<br />
+<strong>The average of errors in the two drug conditions is significantly higher than the control condition. The errors in the 300mg condition are significantly higher than in the 500mg condition</strong></p>
+<p>Q4) Fill in : t (____) = ____,_____ (For contrast one).<br />
+<strong>Contrast One: t(118) = -4.899, p &lt; .001</strong></p>
+<p>Q5) Fill in : t (____) = ____,_____ (For contrast two).<br />
+<strong>Contrast Two: t(118) = -2.213, p &lt; .029</strong></p>
+<p>Q6) What do these t-tests do?<br />
+<strong>Each t-test determines whether the specified contrast is or is not significant. The first contrast considers whether the control mean differs from the average of the 300 &amp; 500mg means. The second contrast considers whether the 300mg mean differs from the 500mg mean.</strong></p>
+<p>Q7) Are the results of the contrasts different from Tukey’s HSD results in task 2? If so why do you think this is so?<br />
+<strong>Yes. The 300 vs 500mg means differ here, they did not with Tukey’s HSD. To keep the familywise error rate at .05 Tukey’s requires larger mean differences to attain significance. In task 3 the contrasts were treated as A Priori or planned comparison. Traditionally, we do not correct for familywise error for such tests.</strong></p>
+<p>Q8) What Contrast coefficients would you use to compare the 500mg condition with the control condition?: ____, _____, _____<br />
+<strong>1 0 -1</strong><br />
+OR<br />
+<strong>-1 0 1</strong></p>
 </div>
 
 

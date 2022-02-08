@@ -173,21 +173,84 @@ Q4) What can you conclude from the tests (verbally, no numbers)?
 
 Here we are going to use contrasts as an a-priori comparison method. We are going to make two sets of comparisons. Firstly, we are going to compare the control condition with both treatment conditions at the same time. This type of contrast looks at the effect of the Epinephrine on the errors made without regard to the amount injected. It looks at whether the mice in the 300mg and 500mg dosages combined, differ from those in the control condition.  For our second contrast we want to look at the effect of 300mg compared with the effect of a 500mg dose.  Generate these contrasts and then answer the following.   
 
-Q1) What is the Family of comparisons for these contrasts?   
+Q1)What is the Family of comparisons for these contrasts? 
 
-Q2) What is the familywise error rate for these contrasts?   
+Q2) What is the familywise error rate for these contrasts?  
 
 Q3) What can you conclude from these contrasts (Verbally, no numbers)?   
-Q4) Fill in :  t (____) = ____,_____   (For contrast one).   
+Q4) Fill in :  t (___) = ____,_____   (For contrast one). 
 
-Q5) Fill in :  t (____) = ____,_____   (For contrast two).   
+Q5) Fill in :  t (___) = ____,_____   (For contrast two).
 
-Q6) What do these t-tests do?   
+Q6) What do these t-tests do?       
 
-Q7) Are the results of the contrasts different from Tukey’s HSD results in task 2? If so why do you think this is so?   
+Q7) Are the results of the contrasts different from Tukey’s HSD results in task 2? If so why do you think this is so? 
 
 Q8) What Contrast coefficients would you use to compare the 500mg condition with the control condition?:  ____,  _____,  _____   
 
+
+
+
+
+
+
+## Task 3: Solution 
+
+
+```{r task.3, echo=TRUE, message=FALSE, warning=FALSE}
+
+library(haven) ### used to load SPSS .sav files, read_sav()
+library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+library(gmodels) ### used for fit.contrast 
+### you do not need to create a new dataframe
+
+df4 <- read_sav("epinex7.sav")
+df4
+
+## specify factor variable
+df4$DOSAGE <-as.factor(df4$DOSAGE)
+
+### declare your anova model
+res.aov <- aov(ERRORS ~ DOSAGE, data = df4)
+
+### contrast of control vs both 300mg and 500mg dosages
+fit.contrast(res.aov, "DOSAGE", c(1, -0.5, -0.5), df=TRUE )
+
+### contrast of 300mg vsd 500mg dosages
+fit.contrast(res.aov, "DOSAGE", c(0, 1, -1), df=TRUE )
+
+```
+
+
+Q1) What is the Family of comparisons for these contrasts?    
+**1. control vs average of 300& 500mg conditions**   
+**2. 300mg vs 500mg**   
+
+
+Q2) What is the familywise error rate for these contrasts?   
+**1 - (1 - .05)<sup>2</sup> = .0975**
+
+Q3) What can you conclude from these contrasts (Verbally, no numbers)?   
+**The average of errors in the two drug conditions is significantly higher than the control condition. The errors in the 300mg condition are significantly higher than in the 500mg condition**   
+
+Q4) Fill in :  t (____) = ____,_____   (For contrast one).   
+**Contrast One: t(118) = -4.899, p < .001**
+
+Q5) Fill in :  t (____) = ____,_____   (For contrast two).  
+**Contrast Two: t(118) = -2.213, p < .029**
+
+Q6) What do these t-tests do?  
+**Each t-test determines whether the specified contrast is or is not significant. The first contrast considers whether the control mean differs from the average of the 300 & 500mg means. The second contrast considers whether the 300mg mean differs from the 500mg mean.**
+
+Q7) Are the results of the contrasts different from Tukey’s HSD results in task 2? If so why do you think this is so?   
+**Yes. The 300 vs 500mg means differ here, they did not with Tukey's HSD. To keep the familywise error rate at .05 Tukey's requires larger mean differences to attain significance. In task 3 the contrasts were treated as A Priori or planned comparison. Traditionally, we do not correct for familywise error for such tests.**
+
+Q8) What Contrast coefficients would you use to compare the 500mg condition with the control condition?:  ____,  _____,  _____   
+**1 		0		 -1**    
+OR   
+**-1 		0		 1**
 
 
 
