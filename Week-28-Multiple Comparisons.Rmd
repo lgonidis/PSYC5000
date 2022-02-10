@@ -17,7 +17,7 @@ In today's session we will be working on a priori and post-hoc testing. We will 
 `library(haven) ### used to load SPSS .sav files, read_sav()`  
 `library(tidyverse) ### for general purpose functions`   
 `library(rstatix) ### used for our ANOVA, anova_test()`   
-`library(ggpubr) ### used for graphs such as gghistogram()`
+`library(ggpubr) ### used for graphs such as gghistogram()`     
 `library(gmodels) ### used for fit.contrast() to create contrasts`   
 
 In this week's exercise we are only going to use one data file which is **epinex7.sav**. This file can be found on moodle. This is the same experiment as in task 1 of exercise on one-way anova using mice. This time, however, the dosages are 0.0 mg, 300 mg and 500 mg. Here, as well as the one-way ANOVA you carried out in the earlier, you are going to carry out Post Hoc and A Priori tests which can tell exactly which conditions are significantly different from each other. 
@@ -90,7 +90,7 @@ t_test(data, ERRORS ~ DOSAGE,
        comparisons = list(c("1", "2"),
                           c("2", "3"),
                           c("1", "3")),
-       p.adjust.method = "none")
+       p.adjust.method = "bonferroni")
 
 
 ```

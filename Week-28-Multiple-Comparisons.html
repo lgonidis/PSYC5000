@@ -177,7 +177,8 @@ pre code {
 <p><code>library(haven) ### used to load SPSS .sav files, read_sav()</code><br />
 <code>library(tidyverse) ### for general purpose functions</code><br />
 <code>library(rstatix) ### used for our ANOVA, anova_test()</code><br />
-<code>library(ggpubr) ### used for graphs such as gghistogram()</code> <code>library(gmodels) ### used for fit.contrast() to create contrasts</code></p>
+<code>library(ggpubr) ### used for graphs such as gghistogram()</code><br />
+<code>library(gmodels) ### used for fit.contrast() to create contrasts</code></p>
 <p>In this week’s exercise we are only going to use one data file which is <strong>epinex7.sav</strong>. This file can be found on moodle. This is the same experiment as in task 1 of exercise on one-way anova using mice. This time, however, the dosages are 0.0 mg, 300 mg and 500 mg. Here, as well as the one-way ANOVA you carried out in the earlier, you are going to carry out Post Hoc and A Priori tests which can tell exactly which conditions are significantly different from each other.</p>
 </div>
 <div id="task-1." class="section level2">
@@ -260,13 +261,13 @@ t_test(data, ERRORS ~ DOSAGE,
        comparisons = list(c(&quot;1&quot;, &quot;2&quot;),
                           c(&quot;2&quot;, &quot;3&quot;),
                           c(&quot;1&quot;, &quot;3&quot;)),
-       p.adjust.method = &quot;none&quot;)</code></pre>
+       p.adjust.method = &quot;bonferroni&quot;)</code></pre>
 <pre><code>## # A tibble: 3 x 10
-##   .y.    group1 group2    n1    n2 statistic    df        p   p.adj p.adj.signif
-## * &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;int&gt; &lt;int&gt;     &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;       
-## 1 ERRORS 1      2         42    42     -5.47    82  4.68e-7 4.68e-7 ****        
-## 2 ERRORS 2      3         42    37      2.32    77  2.3 e-2 2.3 e-2 *           
-## 3 ERRORS 1      3         42    37     -2.89    77  5   e-3 5   e-3 **</code></pre>
+##   .y.    group1 group2    n1    n2 statistic    df         p  p.adj p.adj.signif
+## * &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;int&gt; &lt;int&gt;     &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;       
+## 1 ERRORS 1      2         42    42     -5.47    82   4.68e-7 1.4e-6 ****        
+## 2 ERRORS 2      3         42    37      2.32    77   2.3 e-2 6.8e-2 ns          
+## 3 ERRORS 1      3         42    37     -2.89    77   5   e-3 1.5e-2 *</code></pre>
 <p>Q1) The results of the ANOVA are : F(<strong><em>,</em></strong>_<em>)= </em>______, ________, _______<br />
 <strong>The ANOVA is significant, F(2,118) = 14.872, MSE = 1.976, p &lt; .001.</strong></p>
 <p>Q2) What are the means, standard deviations and Ns for each DOSAGE condition?<br />
