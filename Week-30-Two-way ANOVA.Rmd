@@ -1,0 +1,263 @@
+---
+title: "Week 30 A Two-way ANOVA"
+author: "Dinkar Sharma, Lazaros Gonidis"
+date: "18/02/2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+options(digits = 3)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+In this exercise, we will look at two-way between-participants ANOVA. Before the exercise itself, we will learn how to compute simple main effects. There are various ways of computing simple effects in R, but the method outlined below is very quick and simple. However, bear in mind that this technique only works for two-way (i.e., two factors) between-participants designs.  
+ 
+
+`library(haven) ### used to load SPSS .sav files, read_sav()`  
+`library(tidyverse) ### for general purpose functions`   
+`library(rstatix) ### used for our ANOVA, anova_test()`   
+`library(ggpubr) ### used for graphs such as gghistogram()`     
+`library(gmodels) ### used for fit.contrast() to create contrasts`   
+
+Let’s start by opening the dataset  ‘2-WayBetween-SubjectsAnova.sav’, which is in the MOODLE-SP500-COMPUTING-data files for SPSS exercise folder. This is data from a sample of judges: the experimenters described a crime to the judges, and then showed them a picture of the supposed defendant. The judges then decided what sentence they would hand down to this defendant. There were two IVs: the first IV (**sexdiff**) was whether the defendant was the same sex as the judge (1 = same sex, 2 = opposite sex). The second IV (**attract**) was whether the defendant in the picture was attractive (1), unattractive (2), or no picture was shown (3). The DV is the sentence in years. (We have manipulated these data for the purposes of this exercise, so don’t be too judgemental of the judges when you see the results!) 
+
+
+We will start by running the overall analysis (‘omnibus analysis’) as we have done in previous weeks. We will open the datafile, assign it to a dataframe, declare our factor levels and labels, and acquire means. Note that we will be using the function `factor` and not `as.factor` as it allows us to quickly specify levels and labels.
+
+
+
+
+```{r example, echo=TRUE, message=FALSE, warning=FALSE}
+library(haven) ### used to load SPSS .sav files, read_sav()
+library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+
+
+df <- read_sav("2-WayBetween-SubjectsAnova.sav")
+
+
+df$sexdiff <-factor(df$sexdiff, 
+                       levels=c(1,2), 
+                       labels=c("same", "opposite"))
+
+
+df$attract <-factor(df$attract, 
+                       levels=c(1,2,3), 
+                       labels=c("attractive", "unattractive", "no picture"))
+summary(df)
+
+
+## marginal means per sexdiff and attact
+df %>% 
+  group_by(sexdiff, attract) %>% 
+  get_summary_stats(sentence, type = "mean_sd")
+
+
+## marginal means per sexdiff
+df %>% 
+  group_by(sexdiff) %>% 
+  get_summary_stats(sentence, type = "mean_sd")
+
+
+## marginal means per attact
+df %>% 
+  group_by(attract) %>% 
+  get_summary_stats(sentence, type = "mean_sd")
+
+
+## ggline requires ggpubr
+## in your lecture slides we also used ggplot2
+## you can try using ggplot2 for more practice
+
+ggline(df, x = "sexdiff", y = "sentence", 
+       color = "attract",  ###instead of color you could use line etc
+       add = "mean_se",  
+       palette = c("blue", "red", "green"))
+
+
+```
+
+
+We will now carry out the two-way ANOVA
+
+```{r example_cont, echo=TRUE, message=FALSE, warning=FALSE}
+
+result.aov <- aov(sentence ~ sexdiff*attract, data=df)
+summary(result.aov)
+
+#### these two approaches give the same results here
+
+df %>% 
+  anova_test(sentence ~ sexdiff*attract, type = 3)
+
+```
+
+If you look at the means for each condition, you will see that there is a bigger difference between same- and other-sex defendants in the attractive condition than there is in the unattractive and no picture conditions. This is the interaction: an interaction between two IVs simply means that the effect on one IV on the DV varies, depending on which condition of the other IV you are looking at. But the interaction does not tell you which of these attract effects are significant; to fully describe the interaction, you need to do simple main effects.
+
+
+```{r simple, echo=TRUE, message=FALSE, warning=FALSE}
+## As per your lecture slides we have to use lm() and define the model
+model1 <- lm(sentence ~ sexdiff*attract, data=df)
+
+## simple main effect of attract within each level of sexdiff
+## as our design is between subjects we need to 
+## use the error from the overall model1
+
+df %>% 
+  group_by(sexdiff) %>% 
+  anova_test(sentence ~ attract, error = model1, detailed = TRUE)
+
+## simple main effect of sexdiff within each level of attract
+df %>% 
+  group_by(attract) %>% 
+  anova_test(sentence ~ sexdiff, error = model1, detailed = TRUE)
+
+
+```
+
+
+As you can see, both of these simple main effects are significant. Armed with all these effects, look at the means for each condition (or, better, draw a graph) and see if you can make sense of the results. At the end of the day, stats are worthless if you can’t translate all these effects and numbers back into plain language, and understand what your experiments have shown. Practice on these data, as we have intentionally made them fairly transparent for you. 
+
+
+## Task 1.  
+  Open the **gss.sav** file in the MOODLE-SP500-COMPUTING-data files for SPSS exercise book folder. Here we are going to carry out an analysis of variance to see if the level of income that the respondent receives is related to their gender and the level of education that they reached. When you run the ANOVA, ask the computer to give you a table of descriptive statistics as well.  
+  
+  The data for this week are taken from a general social survey conducted in the US examining various demographic factors as well as measures of life satisfaction. This exercise illustrates a two-way, between subjects analysis of variance. The first factor is SEX. If the  respondent is male , SEX = 1; if female, SEX = 2. The second factor is DEGREE. DEGREE = 0 if the respondent did not finish high school, DEGREE = 1 if the respondents education ended upon completing high school, DEGREE = 2 if the respondent completed a junior college degree, DEGREE = 3 if the respondent completed an undergraduate degree, and DEGREE = 4 if the respondent completed a postgraduate degree.  
+  
+The dependent variable for this exercise is INCOME: the total family income reported by the respondent (in US dollars). Values for income range from 1 to 17 with 1 = under 1,000 and 17 = 50,000 or more. Some other points on the income continuum include: 4 = 4,000 - 4,999, 8 = 8,000 - 8,999, 12 = 17,500 - 19,999, 16 = 35,000 - 49,999.
+
+
+Q1) How many respondents are in the study? What is the Grand Mean Income?   
+Q2) How many respondents are male? What is the marginal mean income for male respondents?   
+Q3) How many respondents highest reported degree is an Undergraduate degree? What is the marginal mean income for this level of the degree factor?    
+Q4) How many female respondents highest educational attainment was the completion of high school? What is the cell mean for Income in this condition?    
+Q5) Report the F-value, Degrees of freedom, significance level and the MS error for the SEX, DEGREE and SEX x DEGREE effects.    
+Q6) How would you interpret any significant main effects?    
+Q7) Is the interaction effect significant? If so, what interpretation would you offer for it?   
+
+## Task 2: Simple Effects Analysis.
+Continue with a simple effect analysis and answer the questions below 
+
+Q1) Report the F-value, Degrees of freedom, significance level and the MS error for each tested simple effect. 
+Q2) Give a verbal interpretation of each tested simple effect. What does each one mean?
+Q3) Given the pattern of simple effects, what interpretation would you offer for the significant two-wayinteraction in the ANOVA.
+
+           
+
+
+
+## Task 1: Solution
+
+
+```{r task1, echo=TRUE, message=FALSE, warning=FALSE}
+library(haven) ### used to load SPSS .sav files, read_sav()
+library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+
+
+gss <- read_sav("gss.sav")
+
+
+gss$sex <-factor(gss$sex, 
+                       levels=c(1,2), 
+                       labels=c("male", "female"))
+
+
+gss$degree <-factor(gss$degree, 
+                       levels=c(0, 1, 2, 3, 4), 
+                       labels=c("nohighschool","highschool", "junior college", "bachelor", "graduate"))
+
+summary(gss)
+
+
+
+## marginal means per sexdiff and attact
+gss %>% 
+  group_by(sex, degree) %>% 
+  get_summary_stats(income, type = "mean_sd")
+
+
+## marginal means per sex
+gss %>% 
+  group_by(sex) %>% 
+  get_summary_stats(income, type = "mean_sd")
+
+
+## marginal means per degree
+gss %>% 
+  group_by(degree) %>% 
+  get_summary_stats(income, type = "mean_sd")
+
+
+## ggline requires ggpubr
+## in your lecture slides we also used ggplot2
+## you can try using ggplot2 for more practice
+
+
+
+
+### Carrying out the 2-way ANOVA
+task1.aov <- aov(income ~ sex*degree, data=gss) 
+summary(task1.aov)
+
+### these two approaches give different results here
+gss %>% 
+  anova_test(income ~ sex*degree, type = 3)
+
+```
+
+1) How many respondents are in the study? What is the Grand Mean Income? 
+
+**N=1473, Grand Mean Income = 11.59, you can get that from summary(ggs) or do a separate mean(gss$income)**
+
+Q2) How many respondents are male? What is the marginal mean income for male respondents?   
+
+**565 males, with a mean income of 12.1**
+
+
+Q3) How many respondents highest reported degree is an Undergraduate degree? What is the marginal mean income for this level of the degree factor?  
+
+**N = 167, M = 14.0**
+
+
+Q4) How many female respondents highest educational attainment was the completion of high school? What is the cell mean for Income in this condition? 
+
+**N = 425, M = 11.9**
+
+Q5) Report the F-value, Degrees of freedom, significance level and the MS error for the SEX, DEGREE and SEX x DEGREE effects.   
+
+
+The following is the word document answer
+**Main effect of sex: F(1,1331) = 2.771, MSE = 15.773, p = .096**
+**Main effect of degree: F(4,1331) = 61.308, MSE = 15.773, p < .001**
+**Interaction between sex and degree: F(4,1331) = 3.493, MSE = 15.773, p < .01**
+
+
+Q6) How would you interpret any significant main effects?   
+
+
+Q7) Is the interaction effect significant? If so, what interpretation would you offer for it? 
+
+
+
+## Task 2: 
+	Using the same data file as in task 1, carry out the ANOVA again but this time do a different post hoc test (Tukey’s Honestly Significant Difference test). 
+
+Q1) Which conditions does Tukey’s HSD indicate as significantly different from one another?    
+Q2) What is the family of comparisons for this post-hoc test?   
+Q3) What is the familywise error rate for the post-hoc test?     
+Q4) What can you conclude from the tests (verbally, no numbers)?    
+
+
+
+## Task 2: Solution   
+
+
+
+
+
+
