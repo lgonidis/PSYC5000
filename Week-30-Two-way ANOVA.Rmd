@@ -81,7 +81,8 @@ ggline(df, x = "sexdiff", y = "sentence",
 ```
 
 
-We will now carry out the two-way ANOVA
+We will now carry out the two-way ANOVA. At this point it is important to stress that `aov()` and `anova_test()` have different functionality in terms of the type of sums of squares. The `aov()` function is using type I as default and should only be used for balanced data, whereas `anova_test()` can be used with any type of sums of squares. Below you can see the analysis with both these functions, and since our data are balanced (same sample size across all conditions) they both yield the same results. For more information on types of sums of squares please follow this link: https://www.r-bloggers.com/2011/03/anova-%e2%80%93-type-iiiiii-ss-explained/   
+
 
 ```{r example_cont, echo=TRUE, message=FALSE, warning=FALSE}
 
@@ -157,6 +158,7 @@ library(haven) ### used to load SPSS .sav files, read_sav()
 library(tidyverse) ### for general purpose functions
 library(rstatix) ### used for our ANOVA, anova_test()
 library(ggpubr) ### used for graphs such as gghistogram()
+library(car)
 
 
 gss <- read_sav("gss.sav")
@@ -201,12 +203,23 @@ gss %>%
 
 
 ### Carrying out the 2-way ANOVA
-task1.aov <- aov(income ~ sex*degree, data=gss) 
-summary(task1.aov)
+### We will use both aov() and anova_test() to highlight the different results
+### this is because we have unbalanced data
+### for your work it is your responsibility to check whether your data are balanced
 
-### these two approaches give different results here
+
+task1.aov <- aov(income ~ sex*degree, data=gss) 
+summary.aov(task1.aov, type = 3)
+
+
 gss %>% 
   anova_test(income ~ sex*degree, type = 3)
+
+
+model2 <-lm(income ~ sex*degree, data=gss,
+          contrasts=list(sex=contr.sum, degree=contr.sum), type = 3)
+car::Anova(model2, type=3)
+
 
 ```
 
@@ -231,10 +244,10 @@ Q4) How many female respondents highest educational attainment was the completio
 Q5) Report the F-value, Degrees of freedom, significance level and the MS error for the SEX, DEGREE and SEX x DEGREE effects.   
 
 
-The following is the word document answer
-**Main effect of sex: F(1,1331) = 2.771, MSE = 15.773, p = .096**
-**Main effect of degree: F(4,1331) = 61.308, MSE = 15.773, p < .001**
-**Interaction between sex and degree: F(4,1331) = 3.493, MSE = 15.773, p < .01**
+The following is the word document answer    
+**Main effect of sex: F(1,1331) = 2.77, MSE = 15.773, p = .096**
+**Main effect of degree: F(4,1331) = 61.31, MSE = 15.773, p < .001**
+**Interaction between sex and degree: F(4,1331) = 3.49, MSE = 15.773, p < .01**
 
 
 Q6) How would you interpret any significant main effects?   
