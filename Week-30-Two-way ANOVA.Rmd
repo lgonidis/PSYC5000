@@ -12,17 +12,17 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Introduction
-In this exercise, we will look at two-way between-participants ANOVA. Before the exercise itself, we will learn how to compute simple main effects. There are various ways of computing simple effects in R, but the method outlined below is very quick and simple. However, bear in mind that this technique only works for two-way (i.e., two factors) between-participants designs.  
+In this exercise, we will look at two-way between-participants ANOVA. Before the exercise itself, we will learn how to compute simple main effects. There are various ways of computing simple effects in R, but the method outlined below is very quick and simple. However, keep in mind that this technique only works for completely between-participants designs.  
  
 
 `library(haven) ### used to load SPSS .sav files, read_sav()`  
 `library(tidyverse) ### for general purpose functions`   
 `library(rstatix) ### used for our ANOVA, anova_test()`
-`library(emmeans) ### used for emmeans() to explore simple main effects`
+`library(emmeans) ### used for emmeans() to explore simple main effects`    
 `library(ggpubr) ### used for graphs such as gghistogram()`     
 `library(gmodels) ### used for fit.contrast() to create contrasts`   
 
-Let’s start by opening the dataset  ‘2-WayBetween-SubjectsAnova.sav’, which is in the MOODLE-SP500-COMPUTING-data files for SPSS exercise folder. This is data from a sample of judges: the experimenters described a crime to the judges, and then showed them a picture of the supposed defendant. The judges then decided what sentence they would hand down to this defendant. There were two IVs: the first IV (**sexdiff**) was whether the defendant was the same sex as the judge (1 = same sex, 2 = opposite sex). The second IV (**attract**) was whether the defendant in the picture was attractive (1), unattractive (2), or no picture was shown (3). The DV is the sentence in years. (We have manipulated these data for the purposes of this exercise, so don’t be too judgemental of the judges when you see the results!) 
+Let’s start by opening the dataset  **2-WayBetween-SubjectsAnova.sav**, which is in the MOODLE-SP500-COMPUTING-data files for SPSS exercise folder. This is data from a sample of judges: the experimenters described a crime to the judges, and then showed them a picture of the supposed defendant. The judges then decided what sentence they would hand down to this defendant. There were two IVs: the first IV (**sexdiff**) was whether the defendant was the same sex as the judge (1 = same sex, 2 = opposite sex). The second IV (**attract**) was whether the defendant in the picture was attractive (1), unattractive (2), or no picture was shown (3). The DV is the sentence in years. (We have manipulated these data for the purposes of this exercise, so don’t be too judgemental of the judges when you see the results!) 
 
 
 We will start by running the overall analysis (‘omnibus analysis’) as we have done in previous weeks. We will open the datafile, assign it to a dataframe, declare our factor levels and labels, and acquire means. Note that we will be using the function `factor` and not `as.factor` as it allows us to quickly specify levels and labels.
@@ -35,7 +35,6 @@ library(haven) ### used to load SPSS .sav files, read_sav()
 library(tidyverse) ### for general purpose functions
 library(rstatix) ### used for our ANOVA, anova_test()
 library(ggpubr) ### used for graphs such as gghistogram()
-library(magrittr)
 
 df <- read_sav("2-WayBetween-SubjectsAnova.sav")
 
@@ -57,13 +56,13 @@ df %>%
   get_summary_stats(sentence, type = "mean_sd")
 
 
-## marginal means per sexdiff
+## marginal means for the main effect of sexdiff
 df %>% 
   group_by(sexdiff) %>% 
   get_summary_stats(sentence, type = "mean_sd")
 
 
-## marginal means per attact
+## marginal means for the main effect of attract
 df %>% 
   group_by(attract) %>% 
   get_summary_stats(sentence, type = "mean_sd")
@@ -78,8 +77,18 @@ ggline(df, x = "sexdiff", y = "sentence",
        add = "mean_se",  
        palette = c("blue", "red", "green"))
 
+## the same data plotted with attraction on x-axis
+## this might be easier for comparisons
+## generally we advise placing the factor with the most levels
+## on the x-axis
+ggline(df, x = "attract", y = "sentence", 
+       color = "sexdiff",  ###instead of color you could use line etc
+       add = "mean_se",  
+       palette = c("blue", "red"))
 
 ```
+
+Before moving on, try to interpret the two graphs in terms of simple main effects. The subsequent analysis will provide you the statistical tools to confirm these simple main effects.
 
 
 We will now carry out the two-way ANOVA. At this point it is important to stress that `aov()` and `anova_test()` have different functionality in terms of the type of sums of squares. The `aov()` function is using type I as default and should only be used for balanced data, whereas `anova_test()` can be used with any type of sums of squares. Below you can see the analysis with both these functions, and since our data are balanced (same sample size across all conditions) they both yield the same results. For more information on types of sums of squares please follow this link: https://www.r-bloggers.com/2011/03/anova-%e2%80%93-type-iiiiii-ss-explained/   
@@ -102,15 +111,16 @@ Another way to carry out an ANOVA with type III sums of squares is by using the 
 ```{r example_cont2, echo=TRUE, message=FALSE, warning=FALSE}
 
 model <-lm(sentence ~ sexdiff*attract, data=df,
-          contrasts=list(sexdiff=contr.sum, attracte=contr.sum), type = 3)
+          contrasts=list(sexdiff=contr.sum, attracte=contr.sum),
+          type = 3)
 car::Anova(model, type=3)
 
 ```
 
 
-From the output you can see that even though `Anova()` requires more complex input it is more useful as it also returns the residuals, `anova_test()` does not do that. In  your future work you **should only use aov() when your data are balanced** in any other case you should use either `anova_test()` or `car::Anova()`. For peace of mind you can use the two latter ones in all cases. 
+In  your future work you **should only use aov() when your data are balanced** in any other case you should use either `anova_test()` or `car::Anova()`. For peace of mind you can use the two latter ones in all cases. 
 
-If you look at the means for each condition, you will see that there is a bigger difference between same- and other-sex defendants in the attractive condition than there is in the unattractive and no picture conditions. This is the interaction: an interaction between two IVs simply means that the effect on one IV on the DV varies, depending on which condition of the other IV you are looking at. But the interaction does not tell you which of these attract effects are significant; to fully describe the interaction, you need to do simple main effects.
+If you look at the means for each condition (either the table or the graphs), you will see that there is a bigger difference between same- and other-sex defendants in the attractive condition than there is in the unattractive and no picture conditions. This is the interaction: an interaction between two IVs simply means that the effect on one IV on the DV varies, depending on which condition of the other IV you are looking at. But the interaction does not tell you which of these attract effects are significant; to fully describe the interaction, you need to do simple main effects.
 
 
 ```{r simple, echo=TRUE, message=FALSE, warning=FALSE}
@@ -130,11 +140,10 @@ df %>%
   group_by(attract) %>% 
   anova_test(sentence ~ sexdiff, error = model1, detailed = TRUE)
 
-
 ```
 
 
-As you can see, both of these simple main effects are significant. Armed with all these effects, look at the means for each condition (or, better, draw a graph) and see if you can make sense of the results. At the end of the day, stats are worthless if you can’t translate all these effects and numbers back into plain language, and understand what your experiments have shown. Practice on these data, as we have intentionally made them fairly transparent for you. However, this method of acquiring simple main effects has its limitations and could yield unreliable results in the presence of many missing values. This is because `anova_test()` removes missing data listwise which could result in many observations being removed and even complete levels within a factor. A more robust method involves using `emmeans` from the `emmeans` package.  
+As you can see, both of these simple main effects are significant. Armed with all these effects, look at the means for each condition (or, better, draw a graph) and see if you can make sense of the results. At the end of the day, stats are worthless if you can’t translate all these effects and numbers back into plain language, and understand what your experiments have shown. Practice on these data, as we have intentionally made them fairly transparent for you. However, this method of acquiring simple main effects has its limitations and could yield unreliable results in the presence of many missing values. This is because `anova_test()` removes missing data listwise which could result in many observations being removed and even complete levels within a factor dropped. A more robust method involves using `joint_tests()` and `emmeans` from the `emmeans` package.  
 
 
 
@@ -143,44 +152,40 @@ As you can see, both of these simple main effects are significant. Armed with al
 library(emmeans)
 model1 <- lm(sentence ~ sexdiff*attract, data=df)
 
-## we then use the emmeans function
-## we declare the model we use, and the variables for the simple main effects
+## we then use the emmeans package
+## specifically the functions joint_test() for simple main effects
+## within the levels of the second factor
+
+simple <- joint_tests(model1, by ="sexdiff")
+simple
+
+## we then follow this up with emmeans()
+## in order to get pairwise comparisons
+## and marginal means
+
+## we declare our model, and the order or variables
+simple_sexdiff <- emmeans(model1,  ~ attract | sexdiff)
+
+## we call pairs() to run the pairwise comparisons
+simple_sexdiff %>% 
+  pairs()
+
+## print() displays the marginal means
+print(simple_sexdiff)
+
+
+
+
+### repeat the same process for the second variable
 simple_attract <- emmeans(model1,  ~ sexdiff | attract)
 
 simple_attract %>% 
   pairs()
 
-
-simple_sexdiff <- emmeans(model1,  ~ attract | sexdiff)
-
-simple_sexdiff %>% 
-  pairs()
-
-
-## We can also just request an output of the above two emmeans
-## this will give us the marginal means wtih confidence intervals
-
 print(simple_attract)
-
-print(simple_sexdiff)
 ```
 
-
-
-The `emmeans` is a very powerful package that provides a plethora of tools for our analysis. For example, we can have a quick visual display of our interaction, see below. There are further uses of `emmeans` and you will learn more about them in during your Practical B.
-
-
-
-
-```{r emmeans.emmip, echo=TRUE, message=FALSE, warning=FALSE}
-## We use the same arguments from our simple main effect exploration
-## this time with the function emmip (ip= interaction plot)
-
-emmip(model1,  ~ sexdiff | attract)
-
-emmip(model1,  ~ attract | sexdiff)
-
-```
+At this point it is worth contrasting these statistical outputs to the visual information provided by the two graphs above. Were you correct in your predictions of possible significant simple main effects?
 
 
 ## Task 1.  
@@ -202,9 +207,11 @@ Q7) Is the interaction effect significant? If so, what interpretation would you 
 ## Task 2: Simple Effects Analysis.
 Continue with a simple effect analysis and answer the questions below 
 
-Q1) Report the F-value, Degrees of freedom, significance level and the MS error for each tested simple effect. 
-Q2) Give a verbal interpretation of each tested simple effect. What does each one mean?
-Q3) Given the pattern of simple effects, what interpretation would you offer for the significant two-wayinteraction in the ANOVA.
+Q1) Report the F-value, Degrees of freedom, and significance for each tested simple effect.   
+
+Q2) Give a verbal interpretation of each tested simple effect. What does each one mean?  
+
+Q3) Given the pattern of simple effects, what interpretation would you offer for the significant two-wayinteraction in the ANOVA.     
 
            
 
@@ -346,9 +353,7 @@ gss %>%
   anova_test(income ~ degree, error = model2, detailed = TRUE)
   
 ```
-The above analysis returned an error for the first simple main effects analysis, this is due to missing data in our variables. When R removed the missing data rows we ended up with a single level factor. A way around this is to remove missing values before we deal with the problematic analysis. Keep in mind that you should only do this if you are faced with an error message like the one above, and you should only do it for the problematic analysis and not for all your variables. It should also be noted that this is not an efficient method as it may results in huge loss of data. There are various techniques for dealing with missing values, such as imputation, but they fall outside the scope of today's lesson. 
-
-
+The above analysis returned an error for the first simple main effects analysis, this is due to missing data in our variables. When R removed the missing data rows we ended up with a single level factor. A way around this is to remove missing values before we deal with the problematic analysis. Keep in mind that you should only do this if you are faced with an error message like the one above, and you should only do it for the problematic analysis and not for all your variables. It should also be noted that this is not an efficient method as it may result in huge loss of data. There are various techniques for dealing with missing values, such as imputation, but they fall outside the scope of today's lesson. 
 
 
 ```{r task2.solution2, echo=TRUE, message=FALSE, warning=FALSE, error=TRUE}
@@ -370,23 +375,67 @@ gss.1 %>%
 
 
 
-Q1) Report the F-value, Degrees of freedom, significance level and the MS error for each tested simple effect. 
+```{r task2.solution3, echo=TRUE, message=FALSE, warning=FALSE, error=TRUE}
+
+## As per your lecture slides we have to use lm() and define the model
+
+model2 <- lm(income ~ sex*degree, data=gss)
 
 
-**Simple main effect of degree in the male condition: F(4,1331) = 22.4, p < .001**
+## we then use the emmeans package
+## specifically the functions joint_test() for simple main effects
+## within the levels of the second factor
 
-**Simple main effect of degree in the female condition: F(4,1331) = 46.9, p < .001**
+simple <- joint_tests(model2, by ="sex")
+simple
 
-**Simple main effect of sex in the lower than high school condition: F(1,1331) = 22.156, MSE = 15.773, p < .001
+## we then follow this up with emmeans()
+## in order to get pairwise comparisons
+## and marginal means
 
-**Simple main effect of sex in the high school condition: F(1,1331) = .289, MSE = 15.773, p = .591
+## we declare our model, and the order or variables
+simple_sex <- emmeans(model2,  ~ degree | sex)
 
-**Simple main effect of sex in the junior college condition: F(1,1331) = .222, MSE = 15.773, p = .638
+## we call pairs() to run the pairwise comparisons
+simple_sex %>% 
+  pairs()
 
-**Simple main effect of sex in the bachelor condition: F(1,1331) = 2.727, MSE = 15.773, p = .099
+## print() displays the marginal means
+print(simple_sex)
 
-**Simple main effect of sex in the graduate condition: F(1,1331) = .082, MSE = 15.773, p = .775
 
+simple <- joint_tests(model2, by ="degree")
+simple
+
+## we then follow this up with emmeans()
+## in order to get pairwise comparisons
+## and marginal means
+
+
+## WE REPEAT THE SAME PROECESS FOR THE SECOND FACTOR
+
+## we declare our model, and the order or variables
+simple_degree <- emmeans(model2,  ~ sex | degree)
+
+## we call pairs() to run the pairwise comparisons
+simple_degree %>% 
+  pairs()
+
+## print() displays the marginal means
+print(simple_degree)
+
+
+```
+
+Q1) Report the F-value, Degrees of freedom, significance level  for each tested simple effect. 
+
+**Significant simple main effect of degree in the male condition: F(4,1331) = 22.4, p < .001**
+
+**Significant simple main effect of degree in the female condition: F(4,1331) = 46.9, p < .001**
+
+**Significant Simple main effect of sex in the nohighschool condition: F(1,1331) = 22.16, p < .001**
+
+**The other simple main effects of sex were not significant, all F's < 2.74, and p's > .09**
 
 
 Q2) Give a verbal interpretation of each tested simple effect. What does each one mean?   
@@ -406,4 +455,5 @@ Q2) Give a verbal interpretation of each tested simple effect. What does each on
 
 Q3) Given the pattern of simple effects, what interpretation would you offer for the significant two-way interaction in the ANOVA.
 
+**In general the income levels of men do not differ from those of women at most levels of educational attainment. There is however, one exception to this general pattern, which accounts for the interaction effect. Specifically, men's income level is significantly higher than that of women amongst respondents who did not finish high school. **
 
