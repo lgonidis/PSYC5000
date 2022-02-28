@@ -68,11 +68,13 @@ Add very clear explanation here!
 
 
 ```{r example_long2, echo=TRUE, message=FALSE, warning=FALSE}
-df_long$Hand <-factor(df_long$Hand, 
-                       levels=c("Left","Right"))
+df_long$Hand <-factor(df_long$Hand,
+                      levels=c("Left","Right"),
+                      labels =c("Left","Right"))
 
 df_long$Task <-factor(df_long$Task, 
-                       levels=c("Words","Position"))
+                      levels=c("Words","Position"),
+                      labels=c("Words","Position"))
 
 df_long$id <- factor(df_long$id)
 
@@ -151,7 +153,7 @@ ggline(df, x = "attract", y = "sentence",
        add = "mean_se",  
        palette = c("blue", "red"))
 
-```
+
 
 Before moving on, try to interpret the two graphs in terms of simple main effects. The subsequent analysis will provide you the statistical tools to confirm these simple main effects.
 
@@ -521,4 +523,46 @@ Q2) Give a verbal interpretation of each tested simple effect. What does each on
 Q3) Given the pattern of simple effects, what interpretation would you offer for the significant two-way interaction in the ANOVA.
 
 **In general the income levels of men do not differ from those of women at most levels of educational attainment. There is however, one exception to this general pattern, which accounts for the interaction effect. Specifically, men's income level is significantly higher than that of women amongst respondents who did not finish high school. **
+
+
+
+
+```{r}
+library(tidyverse)# need this for anova
+library(rstatix)# need this for anova
+library(haven) #needed to inported data
+library(ggpubr) # need this for using %>%
+
+df1<-read_sav("memory.sav")
+
+summary(df1)
+
+#label the factors including the participant number pn
+df1$recall_type <- factor(df1$recall_type,
+                   levels=c("I","D"),
+                   labels=c("Immediate","delay"))
+df1$position <- factor(df1$position, 
+                        levels=c(1,6,12), 
+                        labels=c("1","6","12"))
+df1$pn <- factor(df1$pn)
+df1
+
+
+library(rstatix)
+df1 %>%
+    anova_test(dv = score, wid = pn, 
+             within = c(position,recall_type), 
+             detailed = TRUE) 
+#%>%
+  #get_anova_table()
+ #get_anova_table(., correction = "HF")
+
+result.anova <-anova_test(data=df1, dv=score,  
+                        wid=pn,
+                        within = c(position, recall_type),
+                        detailed = TRUE)
+#you can add type=3 here 
+#though don't need to as it is the default for within-subject designs
+result.anova
+```
 
