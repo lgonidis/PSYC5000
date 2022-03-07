@@ -64,8 +64,10 @@ df_long <- df %>%
                values_to = "Performance")
 ```
 
-Add very clear explanation here!
+In the code above we used a number of arguments with the `pivot_longer` function in order to convert our **wide** structure to **long**.   
 
+1. **!id** here we specify to our function that we will work with all our columns except the **id** column. This is because the **id** column does not contain any measurements that need restructuring, it merely provides the code for each participant.   
+2. **names_to = c("Hand", "Task")** here we specify the names of our new factor columns. We will need two new factors called **
 
 ```{r example_long2, echo=TRUE, message=FALSE, warning=FALSE}
 df_long$Hand <-factor(df_long$Hand,
@@ -85,7 +87,7 @@ We are now ready to run our ANOVA as it is shown in the lecture slides.
 
 
 ```{r example_anova, echo=TRUE, message=FALSE, warning=FALSE}
-result.anova <- rstatix::anova_test(data = df_long, 
+result.anova <- anova_test(data = df_long, 
            dv = Performance, 
            wid = id,
            within = c(Hand, Task),
@@ -116,453 +118,63 @@ df_long %>%
 
 ```
 
+From the output above we can see that we have:    
+1. Simple main effect of HAND within word is not significant, F(1, 23) = 1.926, p = 0.178.   
+2. Simple main effect of HAND within position is also not significant, F(1,23) = .405, p = 0.531.    
+3. Simple main effect of TASK within right hand is not significant, F(1,23) = 0.298, p = 0.590.    
+4. Simple main effect of TASK within left hand is significant, F(1, 23) = 5.122, p = .033.    
 
-## marginal means per sexdiff and attact
-df %>% 
-  group_by(sexdiff, attract) %>% 
-  get_summary_stats(sentence, type = "mean_sd")
+## Reporting in results section   
+We would report the above findings as follows: The significant interaction between hand and task was further investigated using simple main effects analysis.  This showed that there was a significant simple main effect of TASK within left hand, *F*(1,23) = 5.122, *p* = .033. This indicates that left-hand tapping was disrupted to a greater extent by memorizing words than memorizing positions. All other simple main effects were not significant (all *F*s < 2, *p* > 0.1). 
 
 
-## marginal means for the main effect of sexdiff
-df %>% 
-  group_by(sexdiff) %>% 
-  get_summary_stats(sentence, type = "mean_sd")
+## Task 1.a: A 1 factor, two level repeated measures ANOVA.
+ 
+	In previous exercises we have used the data file **stress.sav** which involved stress levels of patients and spouses (both male and female) being measured shortly after and three months after cancer was diagnosed. In Week 26 Example exercise, you carried out a t-test to investigate the difference between stress at time 1 (called STRESS1 in the data file) and stress at time 2 (STRESS2). Here, in task 1, this same analysis is to be generated but this time using the repeated measures ANOVA procedure. 
 
+Q1) Report the F-value, degrees of freedom and significance level for this repeated measures One-Way ANOVA.    
+Q2) Are the significance levels the same here as in Week 26? 
+Q3) How does the F value in the results of this ANOVA relate to the t value in Week 26?
 
-## marginal means for the main effect of attract
-df %>% 
-  group_by(attract) %>% 
-  get_summary_stats(sentence, type = "mean_sd")
+```{r task1a echo=TRUE, message=FALSE, warning=FALSE}
 
-
-## ggline requires ggpubr
-## in your lecture slides we also used ggplot2
-## you can try using ggplot2 for more practice
-
-ggline(df, x = "sexdiff", y = "sentence", 
-       color = "attract",  ###instead of color you could use line etc
-       add = "mean_se",  
-       palette = c("blue", "red", "green"))
-
-## the same data plotted with attraction on x-axis
-## this might be easier for comparisons
-## generally we advise placing the factor with the most levels
-## on the x-axis
-ggline(df, x = "attract", y = "sentence", 
-       color = "sexdiff",  ###instead of color you could use line etc
-       add = "mean_se",  
-       palette = c("blue", "red"))
-
-
-
-Before moving on, try to interpret the two graphs in terms of simple main effects. The subsequent analysis will provide you the statistical tools to confirm these simple main effects.
-
-
-We will now carry out the two-way ANOVA. At this point it is important to stress that `aov()` and `anova_test()` have different functionality in terms of the type of sums of squares. The `aov()` function is using type I as default and should only be used for balanced data, whereas `anova_test()` can be used with any type of sums of squares. Below you can see the analysis with both these functions, and since our data are balanced (same sample size across all conditions) they both yield the same results. For more information on types of sums of squares please follow this link: https://www.r-bloggers.com/2011/03/anova-%e2%80%93-type-iiiiii-ss-explained/   
-
-
-```{r example_cont, echo=TRUE, message=FALSE, warning=FALSE}
-
-result.aov <- aov(sentence ~ sexdiff*attract, data=df)
-summary(result.aov)
-
-#### these two approaches give the same results here
-
-df %>% 
-  anova_test(sentence ~ sexdiff*attract, type = 3)
-
-```
-
-Another way to carry out an ANOVA with type III sums of squares is by using the Anova() function from the `car` package. This requires a slightly longer argument list but it yields the same results as the `anova_test`. The key point here is that you have to specify you model first using `lm` and then call the `Anova()` function. It is crucial that you specify `type=3` in both these steps, contrary to `anova_test()` that you only need to specify `type=3` once. You can see how below. By using `::` we make it clear to `R` that we want to use the `Anova()` function from the `car` package.
-
-```{r example_cont2, echo=TRUE, message=FALSE, warning=FALSE}
-
-model <-lm(sentence ~ sexdiff*attract, data=df,
-          contrasts=list(sexdiff=contr.sum, attracte=contr.sum),
-          type = 3)
-car::Anova(model, type=3)
-
-```
-
-
-In  your future work you **should only use aov() when your data are balanced** in any other case you should use either `anova_test()` or `car::Anova()`. For peace of mind you can use the two latter ones in all cases. 
-
-If you look at the means for each condition (either the table or the graphs), you will see that there is a bigger difference between same- and other-sex defendants in the attractive condition than there is in the unattractive and no picture conditions. This is the interaction: an interaction between two IVs simply means that the effect on one IV on the DV varies, depending on which condition of the other IV you are looking at. But the interaction does not tell you which of these attract effects are significant; to fully describe the interaction, you need to do simple main effects.
-
-
-```{r simple, echo=TRUE, message=FALSE, warning=FALSE}
-## As per your lecture slides we have to use lm() and define the model
-model1 <- lm(sentence ~ sexdiff*attract, data=df)
-
-## simple main effect of attract within each level of sexdiff
-## as our design is between subjects we need to 
-## use the error from the overall model1
-
-df %>% 
-  group_by(sexdiff) %>% 
-  anova_test(sentence ~ attract, error = model1, detailed = TRUE)
-
-## simple main effect of sexdiff within each level of attract
-df %>% 
-  group_by(attract) %>% 
-  anova_test(sentence ~ sexdiff, error = model1, detailed = TRUE)
-
-```
-
-
-As you can see, both of these simple main effects are significant. Armed with all these effects, look at the means for each condition (or, better, draw a graph) and see if you can make sense of the results. At the end of the day, stats are worthless if you can’t translate all these effects and numbers back into plain language, and understand what your experiments have shown. Practice on these data, as we have intentionally made them fairly transparent for you. However, this method of acquiring simple main effects has its limitations and could yield unreliable results in the presence of many missing values. This is because `anova_test()` removes missing data listwise which could result in many observations being removed and even complete levels within a factor dropped. A more robust method involves using `joint_tests()` and `emmeans` from the `emmeans` package.  
-
-
-
-```{r simple.emmeans, echo=TRUE, message=FALSE, warning=FALSE}
-## As above we declare our model
-library(emmeans)
-model1 <- lm(sentence ~ sexdiff*attract, data=df)
-
-## we then use the emmeans package
-## specifically the functions joint_test() for simple main effects
-## within the levels of the second factor
-
-simple <- joint_tests(model1, by ="sexdiff")
-simple
-
-## we then follow this up with emmeans()
-## in order to get pairwise comparisons
-## and marginal means
-
-## we declare our model, and the order or variables
-simple_sexdiff <- emmeans(model1,  ~ attract | sexdiff)
-
-## we call pairs() to run the pairwise comparisons
-simple_sexdiff %>% 
-  pairs()
-
-## print() displays the marginal means
-print(simple_sexdiff)
-
-
-
-
-### repeat the same process for the second variable
-simple_attract <- emmeans(model1,  ~ sexdiff | attract)
-
-simple_attract %>% 
-  pairs()
-
-print(simple_attract)
-```
-
-At this point it is worth contrasting these statistical outputs to the visual information provided by the two graphs above. Were you correct in your predictions of possible significant simple main effects?
-
-
-## Task 1.  
-  Open the **gss.sav** file in the MOODLE-SP500-COMPUTING-data files for SPSS exercise book folder. Here we are going to carry out an analysis of variance to see if the level of income that the respondent receives is related to their gender and the level of education that they reached. When you run the ANOVA, ask the computer to give you a table of descriptive statistics as well.  
-  
-  The data for this week are taken from a general social survey conducted in the US examining various demographic factors as well as measures of life satisfaction. This exercise illustrates a two-way, between subjects analysis of variance. The first factor is SEX. If the  respondent is male , SEX = 1; if female, SEX = 2. The second factor is DEGREE. DEGREE = 0 if the respondent did not finish high school, DEGREE = 1 if the respondents education ended upon completing high school, DEGREE = 2 if the respondent completed a junior college degree, DEGREE = 3 if the respondent completed an undergraduate degree, and DEGREE = 4 if the respondent completed a postgraduate degree.  
-  
-The dependent variable for this exercise is INCOME: the total family income reported by the respondent (in US dollars). Values for income range from 1 to 17 with 1 = under 1,000 and 17 = 50,000 or more. Some other points on the income continuum include: 4 = 4,000 - 4,999, 8 = 8,000 - 8,999, 12 = 17,500 - 19,999, 16 = 35,000 - 49,999.
-
-
-Q1) How many respondents are in the study? What is the Grand Mean Income?   
-Q2) How many respondents are male? What is the marginal mean income for male respondents?   
-Q3) How many respondents highest reported degree is an Undergraduate degree? What is the marginal mean income for this level of the degree factor?    
-Q4) How many female respondents highest educational attainment was the completion of high school? What is the cell mean for Income in this condition?    
-Q5) Report the F-value, Degrees of freedom, significance level and the MS error for the SEX, DEGREE and SEX x DEGREE effects.    
-Q6) How would you interpret any significant main effects?    
-Q7) Is the interaction effect significant? If so, what interpretation would you offer for it?   
-
-## Task 2: Simple Effects Analysis.
-Continue with a simple effect analysis and answer the questions below 
-
-Q1) Report the F-value, Degrees of freedom, and significance for each tested simple effect.   
-
-Q2) Give a verbal interpretation of each tested simple effect. What does each one mean?  
-
-Q3) Given the pattern of simple effects, what interpretation would you offer for the significant two-wayinteraction in the ANOVA.     
-
-           
-
-
-
-## Task 1: Solution
-
-
-```{r task1, echo=TRUE, message=FALSE, warning=FALSE}
 library(haven) ### used to load SPSS .sav files, read_sav()
 library(tidyverse) ### for general purpose functions
 library(rstatix) ### used for our ANOVA, anova_test()
 library(ggpubr) ### used for graphs such as gghistogram()
-library(car)
 
 
-gss <- read_sav("gss.sav")
+df <- read_sav("stress.sav")
 
+df$id <- seq.int(nrow(df))
 
-gss$sex <-factor(gss$sex, 
-                       levels=c(1,2), 
-                       labels=c("male", "female"))
+df_long <- df %>% 
+  pivot_longer(!id, 
+               names_to = c("Hand", "Task"),
+               names_pattern = "(.*?)Hand(.*)",
+               values_to = "Performance")
 
+df_long$Hand <-factor(df_long$Hand, 
+                      levels=c("Left","Right"))
 
-gss$degree <-factor(gss$degree, 
-                       levels=c(0, 1, 2, 3, 4), 
-                       labels=c("nohighschool","highschool", "junior college", "bachelor", "graduate"))
+df_long$Task <-factor(df_long$Task, 
+                      levels=c("Words","Position"))
 
-summary(gss)
-
-
-
-## marginal means per sexdiff and attact
-gss %>% 
-  group_by(sex, degree) %>% 
-  get_summary_stats(income, type = "mean_sd")
-
-
-## marginal means per sex
-gss %>% 
-  group_by(sex) %>% 
-  get_summary_stats(income, type = "mean_sd")
-
-
-## marginal means per degree
-gss %>% 
-  group_by(degree) %>% 
-  get_summary_stats(income, type = "mean_sd")
-
-
-## ggline requires ggpubr
-## in your lecture slides we also used ggplot2
-## you can try using ggplot2 for more practice
+df_long$id <- factor(df_long$id)
 
 
 
-
-### Carrying out the 2-way ANOVA
-### We will use both aov() and anova_test() to highlight the different results
-### this is because we have unbalanced data
-### for your work it is your responsibility to check whether your data are balanced
+count1 <-df_long %>% group_by(Hand, Task) %>% 
+  count(id)
 
 
-task1.aov <- aov(income ~ sex*degree, data=gss) 
-summary.aov(task1.aov, type = 3)
-
-
-gss %>% 
-  anova_test(income ~ sex*degree, type = 3) 
-  
-
-### We also using car::Anova to demonstrate the similarity of results with anova_test()
-
-model1 <-lm(income ~ sex*degree, data=gss,
-          contrasts=list(sex=contr.sum, degree=contr.sum), type = 3)
-car::Anova(model1, type=3)
-
-```
-
-1) How many respondents are in the study? What is the Grand Mean Income? 
-
-**N=1473, Grand Mean Income = 11.59, you can get that from summary(ggs) or do a separate mean(gss$income)**
-
-Q2) How many respondents are male? What is the marginal mean income for male respondents?   
-
-**565 males, with a mean income of 12.1**
-
-
-Q3) How many respondents highest reported degree is an Undergraduate degree? What is the marginal mean income for this level of the degree factor?  
-
-**N = 167, M = 14.0**
-
-
-Q4) How many female respondents highest educational attainment was the completion of high school? What is the cell mean for Income in this condition? 
-
-**N = 425, M = 11.9**
-
-Q5) Report the F-value, Degrees of freedom, significance level and the MS error for the SEX, DEGREE and SEX x DEGREE effects.   
-
-
-The following is the word document answer    
-
-**Main effect of sex: F(1,1331) = 2.77, p = .096**   
-**Main effect of degree: F(4,1331) = 61.31, p < .001**   
-**Interaction between sex and degree: F(4,1331) = 3.49, p = .008**   
-**You can refer back to Week 27 to see how we calculated the MSE**
-
-Q6) How would you interpret any significant main effects?   
-
-**The main effect of Degree reflects a general increase in income from low to high education attainment levels. Follow-up analyses are needed to specify more precisely the nature of these differences.**
-
-Q7) Is the interaction effect significant? If so, what interpretation would you offer for it? 
-
-**The interaction effect is significant. It appears to be due to a general tendency for males' income levels to exceed those of females for all educational attainment levels except Junior College, where the pattern is in the opposite direction. Again, follow up analyses are needed to be sure about the precise pattern. **
-
-
-
-## Task 2: Solution   
-
-```{r task2.solution, echo=TRUE, message=FALSE, warning=FALSE, error=TRUE}
-
-## As per your lecture slides we have to use lm() and define the model
-
-library(tidyverse)
-
-model2 <- lm(income ~ sex*degree, data=gss)
-
-## simple main effect of degree within each level of sex
-## as our design is between subjects we need to 
-## use the error from the overall model2
-
-gss %>% 
-  group_by(degree) %>% 
-  anova_test(income ~ sex, error = model2, detailed = TRUE)
-
-
-gss %>% 
-  group_by(sex) %>% 
-  anova_test(income ~ degree, error = model2, detailed = TRUE)
-  
-```
-The above analysis returned an error for the first simple main effects analysis, this is due to missing data in our variables. When R removed the missing data rows we ended up with a single level factor. A way around this is to remove missing values before we deal with the problematic analysis. Keep in mind that you should only do this if you are faced with an error message like the one above, and you should only do it for the problematic analysis and not for all your variables. It should also be noted that this is not an efficient method as it may result in huge loss of data. There are various techniques for dealing with missing values, such as imputation, but they fall outside the scope of today's lesson. 
-
-
-```{r task2.solution2, echo=TRUE, message=FALSE, warning=FALSE, error=TRUE}
-
-## As per your lecture slides we have to use lm() and define the model
-
-library(tidyverse)
-
-model2 <- lm(income ~ sex*degree, data=gss)
-
-## use na.omit()  to remove missing values
-gss.1 <- na.omit(gss)
-
-gss.1 %>% 
-  group_by(degree) %>% 
-  anova_test(income ~ sex, error = model2, detailed = TRUE)
+result.anova <- anova_test(data = df_long, 
+                                    dv = Performance, 
+                                    wid = id,
+                                    within = c(Hand, Task),
+                                    detailed = TRUE)
 
 ```
 
 
-
-```{r task2.solution3, echo=TRUE, message=FALSE, warning=FALSE, error=TRUE}
-
-## As per your lecture slides we have to use lm() and define the model
-
-model2 <- lm(income ~ sex*degree, data=gss)
-
-
-## we then use the emmeans package
-## specifically the functions joint_test() for simple main effects
-## within the levels of the second factor
-
-simple <- joint_tests(model2, by ="sex")
-simple
-
-## we then follow this up with emmeans()
-## in order to get pairwise comparisons
-## and marginal means
-
-## we declare our model, and the order or variables
-simple_sex <- emmeans(model2,  ~ degree | sex)
-
-## we call pairs() to run the pairwise comparisons
-simple_sex %>% 
-  pairs()
-
-## print() displays the marginal means
-print(simple_sex)
-
-
-simple <- joint_tests(model2, by ="degree")
-simple
-
-## we then follow this up with emmeans()
-## in order to get pairwise comparisons
-## and marginal means
-
-
-## WE REPEAT THE SAME PROECESS FOR THE SECOND FACTOR
-
-## we declare our model, and the order or variables
-simple_degree <- emmeans(model2,  ~ sex | degree)
-
-## we call pairs() to run the pairwise comparisons
-simple_degree %>% 
-  pairs()
-
-## print() displays the marginal means
-print(simple_degree)
-
-
-```
-
-Q1) Report the F-value, Degrees of freedom, significance level  for each tested simple effect. 
-
-**Significant simple main effect of degree in the male condition: F(4,1331) = 22.4, p < .001**
-
-**Significant simple main effect of degree in the female condition: F(4,1331) = 46.9, p < .001**
-
-**Significant Simple main effect of sex in the nohighschool condition: F(1,1331) = 22.16, p < .001**
-
-**The other simple main effects of sex were not significant, all F's < 2.74, and p's > .09**
-
-
-Q2) Give a verbal interpretation of each tested simple effect. What does each one mean?   
-**SEX WITHIN LT High School: Is there a difference in income levels between men and women who did not complete high school?**   
-
-**SEX WITHIN High School: Is there a difference in income levels between men and women whose highest level of educational attainment was completing high school?**   
-**SEX WITHIN Junior College: Is there a difference in income levels between men and women whose highest level of educational attainment was completing junior college?**   
-
-**SEX WITHIN Bachelors: Is there a difference in income levels between men and women whose highest level of educational attainment was completing a bachelor's degree?**   
-
-**SEX WITHIN Graduate: Is there a difference in income levels between men and women whose highest level of educational attainment was beyond the bachelor's degree?**   
-
-**DEGREE WITHIN Male: Are there any differences in the mean income levels of men at the study's five different levels of educational attainment?**    
-
-**DEGREE WITHIN Female: Are there any differences in the mean income levels of women at the study's five different levels of educational attainment?**   
-
-
-Q3) Given the pattern of simple effects, what interpretation would you offer for the significant two-way interaction in the ANOVA.
-
-**In general the income levels of men do not differ from those of women at most levels of educational attainment. There is however, one exception to this general pattern, which accounts for the interaction effect. Specifically, men's income level is significantly higher than that of women amongst respondents who did not finish high school. **
-
-
-
-
-```{r}
-library(tidyverse)# need this for anova
-library(rstatix)# need this for anova
-library(haven) #needed to inported data
-library(ggpubr) # need this for using %>%
-
-df1<-read_sav("memory.sav")
-
-summary(df1)
-
-#label the factors including the participant number pn
-df1$recall_type <- factor(df1$recall_type,
-                   levels=c("I","D"),
-                   labels=c("Immediate","delay"))
-df1$position <- factor(df1$position, 
-                        levels=c(1,6,12), 
-                        labels=c("1","6","12"))
-df1$pn <- factor(df1$pn)
-df1
-
-
-library(rstatix)
-df1 %>%
-    anova_test(dv = score, wid = pn, 
-             within = c(position,recall_type), 
-             detailed = TRUE) 
-#%>%
-  #get_anova_table()
- #get_anova_table(., correction = "HF")
-
-result.anova <-anova_test(data=df1, dv=score,  
-                        wid=pn,
-                        within = c(position, recall_type),
-                        detailed = TRUE)
-#you can add type=3 here 
-#though don't need to as it is the default for within-subject designs
-result.anova
-```
 
