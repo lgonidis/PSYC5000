@@ -272,6 +272,203 @@ result.anova</code></pre>
 ## 2 Words    Hand            1    23   18.9   225.  1.93  0.178     &quot;&quot;      0.014
 ## 3 Position (Intercept)     1    23 1733.   1428. 27.9   0.0000232 &quot;*&quot;     0.504
 ## 4 Position Hand            1    23    4.85  275.  0.405 0.531     &quot;&quot;      0.003</code></pre>
+<p>From the output above we can see that we have:<br />
+1. Simple main effect of HAND within word is not significant, F(1, 23) = 1.926, p = 0.178.<br />
+2. Simple main effect of HAND within position is also not significant, F(1,23) = .405, p = 0.531.<br />
+3. Simple main effect of TASK within right hand is not significant, F(1,23) = 0.298, p = 0.590.<br />
+4. Simple main effect of TASK within left hand is significant, F(1, 23) = 5.122, p = .033.</p>
+</div>
+<div id="reporting-in-results-section" class="section level2">
+<h2>Reporting in results section</h2>
+<p>We would report the above findings as follows: The significant interaction between hand and task was further investigated using simple main effects analysis. This showed that there was a significant simple main effect of TASK within left hand, <em>F</em>(1,23) = 5.122, <em>p</em> = .033. This indicates that left-hand tapping was disrupted to a greater extent by memorizing words than memorizing positions. All other simple main effects were not significant (all <em>F</em>s &lt; 2, <em>p</em> &gt; 0.1).</p>
+</div>
+<div id="task-1.a-a-1-factor-two-level-repeated-measures-anova." class="section level2">
+<h2>Task 1.a: A 1 factor, two level repeated measures ANOVA.</h2>
+<pre><code>In previous exercises we have used the data file **stress.csv** which involved stress levels of patients and spouses (both male and female) being measured shortly after and three months after cancer was diagnosed. In Week 26 Example exercise, you carried out a t-test to investigate the difference between stress at time 1 (called STRESS1 in the data file) and stress at time 2 (STRESS2). Here, in task 1, this same analysis is to be generated but this time using the repeated measures ANOVA procedure. </code></pre>
+<p>Q1) Report the F-value, degrees of freedom and significance level for this repeated measures One-Way ANOVA.<br />
+Q2) Are the significance levels the same here as in Week 26? Q3) How does the F value in the results of this ANOVA relate to the t value in Week 26?</p>
+<pre class="r"><code>library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+
+
+
+
+df &lt;- read_csv(&quot;stress.csv&quot;)
+
+
+### remove missing values before converting wide to long
+## this is because we want to keep participants having both
+## stress1 and stress2 scores
+
+
+df1&lt;- select(df, !c(fno,gender, role, cond))
+
+df1$id &lt;- seq.int(nrow(df1))
+
+
+### wide to long
+df_long &lt;- df1 %&gt;% 
+  pivot_longer(c(stress1, stress2), 
+               names_to = c(&quot;Time&quot;),
+               values_to = &quot;Stress&quot;)
+### Time as factor
+df_long$Time &lt;-factor(df_long$Time)
+
+### id as factor
+df_long$id &lt;- factor(df_long$id)
+
+### have an initial look at descriptive stats
+summary(df_long)</code></pre>
+<pre><code>##        id           Time         Stress   
+##  1      :  2   stress1:178   Min.   :1.0  
+##  2      :  2   stress2:178   1st Qu.:2.0  
+##  3      :  2                 Median :3.0  
+##  4      :  2                 Mean   :3.1  
+##  5      :  2                 3rd Qu.:4.0  
+##  6      :  2                 Max.   :5.0  
+##  (Other):344                 NA&#39;s   :81</code></pre>
+<pre class="r"><code>result.anova &lt;- anova_test(data = df_long, 
+                           dv = Stress, 
+                           wid = id,
+                           within = Time,
+                           detailed = TRUE)
+result.anova</code></pre>
+<pre><code>## ANOVA Table (type III tests)
+## 
+##        Effect DFn DFd     SSn   SSd      F        p p&lt;.05   ges
+## 1 (Intercept)   1  97 1824.51 133.5 1325.8 2.26e-58     * 0.892
+## 2        Time   1  97    4.59  87.4    5.1 2.60e-02     * 0.020</code></pre>
+</div>
+<div id="task-2.-repeated-measures-two-way-anova." class="section level2">
+<h2>Task 2. Repeated Measures Two Way ANOVA.</h2>
+<p>For this task you will need the file <strong>repeated2by4.csv</strong>. Here, we are going to look at the results of a study which investigates performance on a word processing task with differing configurations of computer screens. A psychologist is hired to find the best screen configuration for optimum operator performance. Specifically, the psychologist looks at the effects of illumination levels and screen colours on performance of a word processing task. The research design is a 2 x 4 factorial within subjects design. The first factor manipulates general illumination levels, with the computer terminal located in a room with low or high light. The second factor varies the background colour of the terminal screen. Screen colours used in the study were Orange, Green, Black and Blue. Performance on a standardised word-processing task is measured and scored on a scale of 0-25 with higher numbers indicating better performance. The experiment is a completely within subjects design. This means that each of the study’s five participants served in all eight cells of the study, generated by the factorial combination of two levels of illumination and four levels of screen colour. As a result, each person generated eight scores labelled as follows:</p>
+<p>LOORANGE = illumination is low and the screen colour is orange LOGREEN = illumination is low and the screen colour is green.<br />
+LOBLACK = illumination is low and the screen colour is black LOBLUE = illumination is low and the screen is blue</p>
+<p>HIORANGE = illumination is high and the screen colour is orange HIGREEN = illumination is high and the screen colour is orange HIBLACK = illumination is high and the screen colour is black HIBLUE = illumination is high and the screen colour is blue.</p>
+<pre class="r"><code>library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+
+
+
+
+df &lt;- read_csv(&quot;repeated2by4.csv&quot;)
+
+
+### remove missing values before converting wide to long
+## this is because we want to keep participants having both
+## stress1 and stress2 scores
+
+## acquiring initial descriptives
+summary(df)</code></pre>
+<pre><code>##       sno      lo_orange      lo_green     lo_black     lo_blue    
+##  Min.   :1   Min.   :1.0   Min.   : 3   Min.   : 4   Min.   : 5.0  
+##  1st Qu.:2   1st Qu.:3.0   1st Qu.: 5   1st Qu.: 6   1st Qu.: 9.0  
+##  Median :3   Median :4.0   Median : 8   Median : 7   Median :11.0  
+##  Mean   :3   Mean   :4.8   Mean   : 8   Mean   : 8   Mean   :10.2  
+##  3rd Qu.:4   3rd Qu.:7.0   3rd Qu.:11   3rd Qu.:11   3rd Qu.:12.0  
+##  Max.   :5   Max.   :9.0   Max.   :13   Max.   :12   Max.   :14.0  
+##    hi_orange       hi_green       hi_black       hi_blue    
+##  Min.   : 3.0   Min.   : 5.0   Min.   : 7.0   Min.   :12.0  
+##  1st Qu.: 5.0   1st Qu.: 6.0   1st Qu.: 7.0   1st Qu.:14.0  
+##  Median : 6.0   Median : 9.0   Median : 9.0   Median :16.0  
+##  Mean   : 6.8   Mean   : 9.4   Mean   :10.4   Mean   :16.4  
+##  3rd Qu.:10.0   3rd Qu.:12.0   3rd Qu.:14.0   3rd Qu.:18.0  
+##  Max.   :10.0   Max.   :15.0   Max.   :15.0   Max.   :22.0</code></pre>
+<pre class="r"><code>## marginal means
+df %&gt;% 
+  group_by()</code></pre>
+<pre><code>## # A tibble: 5 x 9
+##     sno lo_orange lo_green lo_black lo_blue hi_orange hi_green hi_black hi_blue
+##   &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
+## 1     1         3        5        6       9         5        6        7      14
+## 2     2         7       11       11      12        10       12       15      22
+## 3     3         9       13       12      14        10       15       14      18
+## 4     4         4        8        7      11         6        9        9      16
+## 5     5         1        3        4       5         3        5        7      12</code></pre>
+<pre class="r"><code>### wide to long
+df_long &lt;- df %&gt;% 
+  pivot_longer(!sno, 
+               names_to = c(&quot;illumination&quot;, &quot;colour&quot;),
+               names_pattern = &quot;(.*?)_(.*)&quot;,
+               values_to = &quot;Performance&quot;)
+
+### sno as factor
+df_long$sno &lt;-factor(df_long$sno)
+
+### illumination as factor
+df_long$illumination &lt;- factor(df_long$illumination)
+
+### colour as factor
+df_long$colour &lt;- factor(df_long$colour)
+
+### have an initial look at descriptive stats
+summary(df_long)</code></pre>
+<pre><code>##  sno   illumination    colour    Performance   
+##  1:8   hi:20        black :10   Min.   : 1.00  
+##  2:8   lo:20        blue  :10   1st Qu.: 5.75  
+##  3:8                green :10   Median : 9.00  
+##  4:8                orange:10   Mean   : 9.25  
+##  5:8                            3rd Qu.:12.00  
+##                                 Max.   :22.00</code></pre>
+<pre class="r"><code>## cell means for colour by illumination
+
+df_long %&gt;% 
+  group_by(colour, illumination) %&gt;% 
+  get_summary_stats(Performance)</code></pre>
+<pre><code>## # A tibble: 8 x 15
+##   illumination colour variable      n   min   max median    q1    q3   iqr   mad
+##   &lt;fct&gt;        &lt;fct&gt;  &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 hi           black  Performa~     5     7    15      9     7    14     7  2.96
+## 2 lo           black  Performa~     5     4    12      7     6    11     5  4.45
+## 3 hi           blue   Performa~     5    12    22     16    14    18     4  2.96
+## 4 lo           blue   Performa~     5     5    14     11     9    12     3  2.96
+## 5 hi           green  Performa~     5     5    15      9     6    12     6  4.45
+## 6 lo           green  Performa~     5     3    13      8     5    11     6  4.45
+## 7 hi           orange Performa~     5     3    10      6     5    10     5  4.45
+## 8 lo           orange Performa~     5     1     9      4     3     7     4  4.45
+## # ... with 4 more variables: mean &lt;dbl&gt;, sd &lt;dbl&gt;, se &lt;dbl&gt;, ci &lt;dbl&gt;</code></pre>
+<pre class="r"><code>### marginal mean for green screen
+### grouping by colour
+df_long %&gt;% 
+  group_by(colour) %&gt;% 
+  get_summary_stats(Performance)</code></pre>
+<pre><code>## # A tibble: 4 x 14
+##   colour variable       n   min   max median    q1    q3   iqr   mad  mean    sd
+##   &lt;fct&gt;  &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 black  Performan~    10     4    15    8    7     11.8  4.75  3.71   9.2  3.64
+## 2 blue   Performan~    10     5    22   13   11.2   15.5  4.25  3.71  13.3  4.74
+## 3 green  Performan~    10     3    15    8.5  5.25  11.8  6.5   5.19   8.7  3.97
+## 4 orange Performan~    10     1    10    5.5  3.25   8.5  5.25  3.71   5.8  3.16
+## # ... with 2 more variables: se &lt;dbl&gt;, ci &lt;dbl&gt;</code></pre>
+<pre class="r"><code>result.anova &lt;- anova_test(data = df_long, 
+                           dv = Performance, 
+                           wid = sno,
+                           within = c(colour, illumination),
+                           detailed = TRUE)
+result.anova</code></pre>
+<pre><code>## ANOVA Table (type III tests)
+## 
+## $ANOVA
+##                Effect DFn DFd    SSn    SSd    F        p p&lt;.05   ges
+## 1         (Intercept)   1   4 3422.5 396.25 34.5 4.00e-03     * 0.889
+## 2              colour   3  12  286.1  16.15 70.9 6.67e-08     * 0.401
+## 3        illumination   1   4   90.0   7.75 46.5 2.00e-03     * 0.174
+## 4 colour:illumination   3  12   35.4   7.85 18.0 9.63e-05     * 0.076
+## 
+## $`Mauchly&#39;s Test for Sphericity`
+##                Effect     W     p p&lt;.05
+## 1              colour 0.551 0.905      
+## 2 colour:illumination 0.047 0.166      
+## 
+## $`Sphericity Corrections`
+##                Effect   GGe     DF[GG]    p[GG] p[GG]&lt;.05   HFe      DF[HF]
+## 1              colour 0.729 2.19, 8.75 3.29e-06         * 1.644 4.93, 19.73
+## 2 colour:illumination 0.426 1.28, 5.11 7.00e-03         * 0.537  1.61, 6.45
+##      p[HF] p[HF]&lt;.05
+## 1 6.67e-08         *
+## 2 3.00e-03         *</code></pre>
 </div>
 
 
