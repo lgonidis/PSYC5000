@@ -4,8 +4,7 @@ library(rstatix) ### used for our ANOVA, anova_test()
 library(ggpubr) ### used for graphs such as gghistogram()
 
 
-df <- read_sav("stress.sav")
-summary(df)
+
 
 df <- read_csv("stress.csv")
 
@@ -14,20 +13,11 @@ df <- read_csv("stress.csv")
 ## this is because we want to keep participants having both
 ## stress1 and stress2 scores
 
-df <- na.omit(df)
-summary(df)
-
 
 df1<- select(df, !c(fno,gender, role, cond))
 
 df1$id <- seq.int(nrow(df1))
 
-
-summary(df1)
-
-count(df1)
-
-df1<-na.omit(df1)
 
 ### wide to long
 df_long <- df1 %>% 
