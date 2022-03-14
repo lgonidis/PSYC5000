@@ -196,13 +196,11 @@ library(ggpubr) ### used for graphs such as gghistogram()
 df <- read_csv("stress.csv")
 
 
-### remove missing values before converting wide to long
-## this is because we want to keep participants having both
-## stress1 and stress2 scores
+### removing fno, gender, role and cond from the working dataframe
 
 df1<- select(df, !c(fno,gender, role, cond))
 
-## creting an id variable
+## creating an id variable
 df1$id <- seq.int(nrow(df1))
 
 
