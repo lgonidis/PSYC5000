@@ -1,7 +1,7 @@
 ---
-title: "Week 32 A Two-way ANOVA"
+title: "Week 32 Repeated Measures ANOVA"
 author: "Dinkar Sharma, Lazaros Gonidis"
-date: "28/02/2022"
+date: "7/03/2022"
 output:
   html_document: default
 ---
@@ -22,9 +22,9 @@ Just like last week’s exercise, this exercise requires you to investigate a si
 `library(ggpubr) ### used for graphs such as gghistogram()`     
 `library(gmodels) ### used for fit.contrast() to create contrasts`   
 
-Let’s start by opening the dataset: **2-wayWithin-SubectsAnova.sav**, which is in the MOODLE-SP500-COMPUTING-data files for SPSS exercise folder. This is data from a cognitive experiment, in which participants had to tap with one hand while simultaneously doing a memory task, which involved remembering either words or the position of objects. So there are two IVs here: let’s call them **Hand** (left or right) and **Task** (words or positions). Start by carrying out the overall ANOVA as it is shown in the lecture slides. You should find that there is a significant interaction between the two factors, *F*(1,23) = 4.807, *MSE* = 4.460, *p* = .039. If you look at the means, or draw a graph, you will see that the effect of task is much larger in the left hand condition than it is in the right hand condition. Like the last exercise, we now need to conduct simple effects to further describe the interaction. 
+Let’s start by opening the dataset: **2-wayWithin-SubectsAnova.sav**, which is in the data files folder in Moodle. This is data from a cognitive experiment, in which participants had to tap with one hand while simultaneously doing a memory task, which involved remembering either words or the position of objects. So there are two IVs here: let’s call them **Hand** (left or right) and **Task** (words or positions). Start by carrying out the overall ANOVA as it is shown in the lecture slides. You should find that there is a significant interaction between the two factors, *F*(1,23) = 4.807, *MSE* = 4.460, *p* = .039. If you look at the means, or draw a graph, you will see that the effect of task is much larger in the left hand condition than it is in the right hand condition. Like the last exercise, we now need to conduct simple effects to further describe the interaction. 
 
-NB: The method that is described below follows the advice given by Howell (1997).   Conceptually, simple main effects analyses involves breaking down the two-way interaction into a number of one-way analyses.  With a completely within-subjects design you do this in SPSS by running separate one-way analysis of variance.  For this example the simple main effects analyses that you want to do are the following.
+NB: The method that is described below follows the advice given by Howell (1997).   Conceptually, simple main effects analyses involves breaking down the two-way interaction into a number of one-way analyses.  With a completely within-subjects design you do this by running separate one-way analysis of variance.  For this example the simple main effects analyses that you want to do are the following.
  
 (A) Simple main effect of HAND within words
 (B) Simple main effect of HAND within position
@@ -134,8 +134,8 @@ We would report the above findings as follows: The significant interaction betwe
 	In previous exercises we have used the data file **stress.csv** which involved stress levels of patients and spouses (both male and female) being measured shortly after and three months after cancer was diagnosed. In Week 26 Example exercise, you carried out a t-test to investigate the difference between stress at time 1 (called STRESS1 in the data file) and stress at time 2 (STRESS2). Here, in task 1, this same analysis is to be generated but this time using the repeated measures ANOVA procedure. 
 
 Q1) Report the F-value, degrees of freedom and significance level for this repeated measures One-Way ANOVA.    
-Q2) Are the significance levels the same here as in Week 26? 
-Q3) How does the F value in the results of this ANOVA relate to the t value in Week 26?
+Q2) Are the significance levels the same here as in Week 26?        
+Q3) How does the F value in the results of this ANOVA relate to the t value in Week 26?   
 
 
 
@@ -196,13 +196,11 @@ library(ggpubr) ### used for graphs such as gghistogram()
 df <- read_csv("stress.csv")
 
 
-### remove missing values before converting wide to long
-## this is because we want to keep participants having both
-## stress1 and stress2 scores
+### removing fno, gender, role and cond from the working dataframe
 
 df1<- select(df, !c(fno,gender, role, cond))
 
-## creting an id variable
+## creating an id variable
 df1$id <- seq.int(nrow(df1))
 
 
