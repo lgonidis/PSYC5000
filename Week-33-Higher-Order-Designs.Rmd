@@ -1,7 +1,7 @@
 ---
-title: "Week 30 A Two-way ANOVA"
+title: "Week 32 Three-Way ANOVA"
 author: "Dinkar Sharma, Lazaros Gonidis"
-date: "18/02/2022"
+date: "14/03/2022"
 output:
   html_document: default
 ---
@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Introduction
-The present exercise is taken from a general social survey conducted in the US examining various demographic factors as well as measures of life satisfaction. The data file is called **gss.sav** and can be found in the MOODLE. This exercise illustrates a three-way, between subjects analysis of variance. The first factor in the design is RACE. If the respondent is White, RACE = 1 ; if Black, Race = 2.  The second factor is SEX, if the respondent is male, SEX = 1; if female, SEX = 2. The third factor is PAEINDEX. This is a dichotomous variable signifying the education level of the respondent’s father [PA (paternal), E (education) and INDEX (index)]. PAEINDEX = 1 if the respondent’s father did not finish high school, PAEINDEX = 2 if the respondent’s father did complete or went beyond high school. The dependent variable for this exercise (DV) is HAPMAR: the respondent’s reported happiness in his or her marriage. Values for HAPMAR range from 1 to 3 with 1= very happy, 2 = pretty happy and 3= not too happy.      
+The present exercise is taken from a general social survey conducted in the US examining various demographic factors as well as measures of life satisfaction. The data file is called **gss.sav** and can be found in the MOODLE. This exercise illustrates a three-way, between subjects analysis of variance. The first factor in the design is RACE. If the respondent is White, RACE = 1; if Black, Race = 2.  The second factor is SEX, if the respondent is male, SEX = 1; if female, SEX = 2. The third factor is PAEINDEX. This is a dichotomous variable signifying the education level of the respondent’s father [PA (paternal), E (education) and INDEX (index)]. PAEINDEX = 1 if the respondent’s father did not finish high school, PAEINDEX = 2 if the respondent’s father did complete or went beyond high school. The dependent variable for this exercise (DV) is HAPMAR: the respondent’s reported happiness in his or her marriage. Values for HAPMAR range from 1 to 3 with 1= very happy, 2 = pretty happy and 3= not too happy.      
 
 
 FACTOR 1  =  **sex**    ;          	1=male, 2=female     
@@ -74,14 +74,14 @@ Q4) What are the marginal means for the RACE x SEX interaction?
 
 Q5) Report the F-value, Degrees of freedom and significance level for all effects in the design.  How many degrees of freedom are associated with the error term?   
 
-**Main effect of race: F(1,579) = .164, p = .685**
-**Main effect of sex: F(1,579) = .563, p = .453**
-**Main effect of paeindex: F(1,579) = 5,826, p = .016**
-**Race x Sex interaction: F(1,579) = .538, p = .464**
-**Race x Paeindex interaction: F(1,579) = 6.219, p = .013**
-**Sex x Paeindex interaction: F(1,579) = 3.775, p = .053**
-**Race x Sex x Paeindex interaction: F(1,579) = 3.753, p = .053**
-
+**Main effect of race: F(1,579) = .164, p = .685**   
+**Main effect of sex: F(1,579) = .563, p = .453**   
+**Main effect of paeindex: F(1,579) = 5,826, p = .016**   
+**Race x Sex interaction: F(1,579) = .538, p = .464**   
+**Race x Paeindex interaction: F(1,579) = 6.219, p = .013**   
+**Sex x Paeindex interaction: F(1,579) = 3.775, p = .053**   
+**Race x Sex x Paeindex interaction: F(1,579) = 3.753, p = .053**   
+**df for error term = 579**
 
 Q6) Assume that the three-way interaction is significant. What interpretation would you offer this effect?    
 
@@ -195,7 +195,6 @@ ggline(df, x = "race", y = "hapmar",
        add = "mean_se")
 
 
-
 ```
 
 
@@ -210,7 +209,7 @@ ggline(df, x = "race", y = "hapmar",
 2. Looking at the interaction between the father’s education level and sex on how happily married  respondents are, when black.  
 
 
-Q1) Report the F-value, degrees of freedom, significance level and MS error (error variance) for each tested simple interaction and main effect.   
+Q1) Report the F-value, degrees of freedom, and significance level for each tested simple interaction and main effect.   
 
 Q2) Give a verbal interpretation of each tested simple effect.    
 
@@ -223,14 +222,14 @@ Q3) Given the pattern of simple effects, what interpretation would you offer for
 ## Task 2: Solution   
 
 
-Q1) Report the F-value, degrees of freedom, significance level and MS error (error variance) for each tested simple interaction and main effect.   
+Q1) Report the F-value, degrees of freedom and significance level for each tested simple interaction and main effect.   
 
 **F(1,579) < 0.001, p = .990**   
 **F(1,579) = 3.949, p = .047**
 
 Q2) Give a verbal interpretation of each tested simple effect.  
 
-**Simple Sex by Paeindex interaction within the White condition Are distinctive levels of marital happiness associated with distinctive levels of Sex and the PAEINDEX for the White respondents? Simple Sex by Paeindex interaction within the Black condition Are distinctive levels of marital happiness associated with distinctive levels of Sex and the PAEINDEX for the Black respondents?**
+**Simple Sex by Paeindex interaction within the White condition are distinctive levels of marital happiness associated with distinctive levels of Sex and the PAEINDEX for the White respondents? Simple Sex by Paeindex interaction within the Black condition are distinctive levels of marital happiness associated with distinctive levels of Sex and the PAEINDEX for the Black respondents?**
 
 
 Q3) Given the pattern of simple effects, what interpretation would you offer for the (marginally)  significant three-way interaction in the ANOVA?  
