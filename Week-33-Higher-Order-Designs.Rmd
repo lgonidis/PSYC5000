@@ -1,5 +1,5 @@
 ---
-title: "Week 32 Three-Way ANOVA"
+title: "Week 33 Three-Way ANOVA"
 author: "Dinkar Sharma, Lazaros Gonidis"
 date: "14/03/2022"
 output:
