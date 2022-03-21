@@ -63,3 +63,14 @@ result.anova <- anova_test(data = df_long,
                            within = c(colour, illumination),
                            detailed = TRUE)
 result.anova
+
+
+df_long %>% 
+  group_by(colour) %>%
+  anova_test(dv = Performance, 
+             wid = sno,
+             within = illumination,
+             detailed = TRUE) %>% 
+  get_anova_table()
+
+  
