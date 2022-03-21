@@ -1,0 +1,212 @@
+---
+title: "Week 34 Mixed ANOVA"
+author: "Dinkar Sharma, Lazaros Gonidis"
+date: "21/03/2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+options(digits = 3)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Simple effects analysis is relatively straightforward if you can carry out simple effects analysis that involve only within-participants factors.  In such cases you do not use the ‘pooled’ error terms but carry out the smaller repeated measures ANOVAs as you were shown in Exercise on repeated measures ANOVA. In other words, break up the between-participants factor(s) and analyse whatever is left over. For example, consider a 2x2x2 design, with three factors called A, B, and C, where Factor A is between-participants and B and C are within-participants. If the three-way interaction is significant, you could split the file by Factor A, and look at the simple interaction between B and C in condition 1 of A, and then the simple interaction between B and C in condition 2 of A. Because you are left only analysing within-participants factors, you can trust the R output and do not have to use a pooled error term.    
+
+
+## Today's exercises   
+
+In today's tasks you are going to use the data file called **mixed_anova.csv**. This data file includes the stress levels of patients and spouses (both male and female) at time 1, time 2 and time 3. This exercise involves a mixed-model ANOVA with three factors (a 3 x 2 x 2 design).   
+
+Factor 1: time, three levels, repeated measures.   
+Level 1 = stress1   
+Level 2 = stress2   
+Level 3 = stress3    
+  
+Factor 2: gender, two levels, between subjects.       
+Level 1 = male    
+Level 2 = female    
+
+Factor 3: role, two levels, between subjects.    
+Level 1 = patient   
+Level 2 = spouse    
+
+DV: score, reported stress
+
+Some of the packages you might need this week.   
+
+`library(tidyverse) ### for general purpose functions`      
+`library(rstatix) ### used for our ANOVA, anova_test()`     
+`library(ggpubr) ### used for graphs such as gghistogram()`        
+  
+
+## Task 1:  Mixed Model Three factor ANOVA.   
+
+Carry out the Mixed model ANOVA.   
+
+
+Q1) Write a summary table of the analysis ensuring all 7 effects are presented. Include appropriate error terms.   
+
+Q2) What are the mean stress levels for male patients at time 1, time 2 and time 3?   
+
+Q3) What are the mean stress levels for female spouses at time 1, time 2 and time 3?   
+
+Q4) What is the marginal mean stress level for male spouses?    
+
+Q5) What is the marginal mean stress level for female patients?   
+
+Q6) Plot the three-way interaction by role and gender for each level of time? What interpretation would you offer for it?    
+
+Q7) Given that the three-way interaction effect is significant, are the other significant effects of interpretative importance?    
+ 
+
+## Task 1: Solution 
+
+
+Q1) Write a summary table of the analysis ensuring all 7 effects are presented. Include appropriate error terms.    
+
+![Anova Table](anova_table.jpg)   
+
+Q2) What are the mean stress levels for male patients at time 1, time 2 and time 3?    
+
+**2.56, 2.83, 3.22** 
+
+Q3) What are the mean stress levels for female spouses at time 1, time 2 and time 3?  
+
+**3.50, 3.58, 3.42**
+
+Q4) What is the marginal mean stress level for male spouses?    
+
+**3.35**
+
+Q5) What is the marginal mean stress level for female patients?      
+
+**3.22**
+
+Q6) Plot the three-way interaction by role and gender for each level of time? What interpretation would you offer for it?  
+
+**Yes the three way interaction is significant, F(1.91,175)=3.435, p=.037. By inspecting the cell means the three-way interaction seems to be quite complex. For the male-spouse and the female-patients there seems to be a decrease in stress levels from time1 to time2 followed by an increase in stress levels from time2 to time3. However, this pattern is different for the male-patients and the female spouses. The male-patients seem to show a general increase in stress levels from time1 to time2 to time3. The female-spouses seem to show no difference in stress levels across the three time intervals.**
+
+
+Q7) Given that the three-way interaction effect is significant, are the other significant effects of interpretative importance?    
+
+**No. There are only two other effects that are significant: the main effect of Role and the main effect of Stress. However, these main effects are not interpretable since what happens at the three levels of stress and the two levels of Role is dependent on how they interact with each other and the variable for Gender.**
+
+
+```{r task1, echo=TRUE, message=FALSE, warning=FALSE}
+library(haven) ### used to load SPSS .sav files, read_sav()
+library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+library(emmeans)
+
+df <- read_csv("mixed_anova.csv")
+
+
+df$gender <- factor(df$gender, levels = c(1,2),
+                    labels = c("male", "female"))
+
+df$role <- factor(df$role, levels = c(1,2),
+                     labels = c("patient", "spouse"))
+
+df$fno <- as.factor(df$fno)
+
+df$time <- as.factor(df$time)
+  
+  
+
+  
+anova1 <- anova_test(data =df, dv = score, 
+                     wid = fno,
+                     between = c(gender, role),
+                     within = time,
+                     type = 3,
+                     detailed = TRUE)
+
+anovatable<-get_anova_table(anova1, correction = "HF")
+anovatable
+
+
+df %>% 
+  group_by(gender, role, time) %>% 
+  summarise(mean = mean(score))
+
+
+df %>% 
+  group_by(gender, role) %>% 
+  summarise(mean = mean(score))
+
+
+
+ggline(df, x = "time", 
+       y = "score", 
+       color = "role",
+       facet.by = "gender",
+       add = "mean_se"
+       )
+```
+
+
+
+
+## Task 2 : Simple effects analysis for a three way mixed model ANOVA.
+
+	In view of the significant three-way interaction in the results of task 1, simple effects analyses need to be carried out. A useful simple effect analysis for this design would be to separate each cell of the 2 x 2 between subject factor and analyse the effects of stress levels. These are the simple main effects analysis we are going to carry out here. Carry out each of the following simple main effects analyses:
+
+2(a) Test the difference in stress levels at time 1, 2 and 3 with male patients..
+2(b): Test the difference in stress levels at time 1, 2 and 3 with male spouses
+2(c): Test the difference in stress levels at time 1, 2 and 3 with female patients
+2(d): Test the difference in stress levels at time 1, 2 and 3 with female spouses
+
+Q1) Report the F-value, degrees of freedom, significance level and MS error (error variance) for each tested simple main effect.   
+
+Q2) Give a verbal interpretation of each tested simple effect.   
+
+Q3) Given the pattern of simple effects, what interpretation would you offer for the significant three-way interaction obtained in the ANOVA? (Hint: plot a graph of the two-way interaction within each level of time).   
+
+
+## Task 2: Solution   
+
+
+Q1) Report the F-value, degrees of freedom, and significance level for each tested simple main effect.  
+
+**Simple main effect of time on male patient, F(2.02,34.4) =   1.52, p = .234**    
+**Simple main effect of time on male spouse, F(2.13,47.4) =   5.71, p = .006**  
+
+**Simple main effect of time on female patient, F(1.82,76.6) =   8.96, p < .001**   
+**Simple main effect of time on female spouse, F(2.21,24.3) =  0.053, p = .948**    
+
+Q2) Give a verbal interpretation of each tested simple effect.    
+
+**TIME WITHIN MALE-PATIENTS: Do the three time intervals differ within the male patients?**    
+**TIME WITHIN MALE-SPOUSES: Do the three time intervals differ within the male spouses?**   
+**TIME WITHIN FEMALE-PATIENTS: Do the three time intervals differ within the female patients?**     
+**TIME WITHIN FEMALE-SPOUSES: Do the three time intervals differ within the female spouses?**   
+
+
+Q3) Given the pattern of simple effects, what interpretation would you offer for the significant three-way interaction obtained in the ANOVA? (Hint: plot a graph of the two-way interaction within each level of time)   
+
+**The simple main effects show that there is no significant difference in stress levels for the male-patients and the female-spouses. However, for the male-spouses and the female-patients there is an initial decrease in stress levels from time1 to time2 and then an increase in stress levels from time2 to time3.**
+
+
+```{r task2.solution3, echo=TRUE, message=FALSE, warning=FALSE, error=TRUE}
+
+df %>% 
+  group_by(gender, role) %>% 
+  anova_test(dv = score, 
+             wid = fno,
+             within = time,
+             type = 3,
+             detailed = TRUE) %>% 
+  get_anova_table(correction = "HF")
+
+ggline(df, x = "gender", 
+       y = "score", 
+       color = "role",
+       facet.by = "time",
+       add = "mean_se"
+       )
+
+```
