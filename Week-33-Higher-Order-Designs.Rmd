@@ -1,7 +1,7 @@
 ---
-title: "Week 33 Three-Way ANOVA"
+title: "Week 34 Mixed ANOVA"
 author: "Dinkar Sharma, Lazaros Gonidis"
-date: "14/03/2022"
+date: "21/03/2022"
 output:
   html_document: default
 ---
@@ -12,90 +12,87 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Introduction
-The present exercise is taken from a general social survey conducted in the US examining various demographic factors as well as measures of life satisfaction. The data file is called **gss.sav** and can be found in the MOODLE. This exercise illustrates a three-way, between subjects analysis of variance. The first factor in the design is RACE. If the respondent is White, RACE = 1; if Black, Race = 2.  The second factor is SEX, if the respondent is male, SEX = 1; if female, SEX = 2. The third factor is PAEINDEX. This is a dichotomous variable signifying the education level of the respondent’s father [PA (paternal), E (education) and INDEX (index)]. PAEINDEX = 1 if the respondent’s father did not finish high school, PAEINDEX = 2 if the respondent’s father did complete or went beyond high school. The dependent variable for this exercise (DV) is HAPMAR: the respondent’s reported happiness in his or her marriage. Values for HAPMAR range from 1 to 3 with 1= very happy, 2 = pretty happy and 3= not too happy.      
+
+Simple effects analysis is relatively straightforward if you can carry out simple effects analysis that involve only within-participants factors.  In such cases you do not use the ‘pooled’ error terms but carry out the smaller repeated measures ANOVAs as you were shown in Exercise on repeated measures ANOVA. In other words, break up the between-participants factor(s) and analyse whatever is left over. For example, consider a 2x2x2 design, with three factors called A, B, and C, where Factor A is between-participants and B and C are within-participants. If the three-way interaction is significant, you could split the file by Factor A, and look at the simple interaction between B and C in condition 1 of A, and then the simple interaction between B and C in condition 2 of A. Because you are left only analysing within-participants factors, you can trust the R output and do not have to use a pooled error term.    
 
 
-FACTOR 1  =  **sex**    ;          	1=male, 2=female     
+## Today's exercises   
 
-FACTOR 2  =  **race** ;          	1=white, 2=black    
+In today's tasks you are going to use the data file called **mixed_anova.csv**. This data file includes the stress levels of patients and spouses (both male and female) at time 1, time 2 and time 3. This exercise involves a mixed-model ANOVA with three factors (a 3 x 2 x 2 design).   
 
-FACTOR 3  =  **paeindex**;  	1= the respondent’s father did not finish high school, 
-2= the respondent’s father did complete or went beyond high school.    
+Factor 1: time, three levels, repeated measures.   
+Level 1 = stress1   
+Level 2 = stress2   
+Level 3 = stress3    
+  
+Factor 2: gender, two levels, between subjects.       
+Level 1 = male    
+Level 2 = female    
+
+Factor 3: role, two levels, between subjects.    
+Level 1 = patient   
+Level 2 = spouse    
+
+DV: score, reported stress
+
+Some of the packages you might need this week.   
+
+`library(tidyverse) ### for general purpose functions`      
+`library(rstatix) ### used for our ANOVA, anova_test()`     
+`library(ggpubr) ### used for graphs such as gghistogram()`        
+  
+
+## Task 1:  Mixed Model Three factor ANOVA.   
+
+Carry out the Mixed model ANOVA.   
 
 
-`library(haven) ### used to load SPSS .sav files, read_sav()`  
-`library(tidyverse) ### for general purpose functions`   
-`library(rstatix) ### used for our ANOVA, anova_test()`
-`library(emmeans) ### used for emmeans() to explore simple main effects`    
-`library(ggpubr) ### used for graphs such as gghistogram()`     
-`library(gmodels) ### used for fit.contrast() to create contrasts`   
+Q1) Write a summary table of the analysis ensuring all 7 effects are presented. Include appropriate error terms.   
 
-##Task 1:  Analysing The 2 x 2 x 2 between subjects design.
+Q2) What are the mean stress levels for male patients at time 1, time 2 and time 3?   
 
-Before running the ANOVA you need to make sure that the variable for **race** only contains data for white and black respondents (values 1 and 2).  Note that in the data set there are also values for a ‘other’ category (value 3). Hint: use the function `filter()`. Also, make sure that all three factors are correctly defined as  factors.
+Q3) What are the mean stress levels for female spouses at time 1, time 2 and time 3?   
 
-Q1) How many respondents’ data are included in the analysis of variance? Quite a few of the overall sample’s respondents have not been included. What, specifically, may be the reason for this?    
+Q4) What is the marginal mean stress level for male spouses?    
 
-Q2) Produce the table of marginal means for this study.   
+Q5) What is the marginal mean stress level for female patients?   
+
+Q6) Plot the three-way interaction by role and gender for each level of time? What interpretation would you offer for it?    
+
+Q7) Given that the three-way interaction effect is significant, are the other significant effects of interpretative importance?    
  
-Q3) What is the marginal mean marital happiness for female respondents?   
 
-Q4) What are the marginal means for the RACE x SEX interaction?   
-
-Q5) Report the F-value, Degrees of freedom and significance level for all effects in the design.  How many degrees of freedom are associated with the error term?    
-
-Q6) Assume that the three-way interaction is significant. What interpretation would you offer this effect?    
-
-Q7) Assuming that the three-way interaction effect is significant, are the other significant effects of interpretative importance? How should effects with such significance levels best be presented?   
-
-Q8) In the previous questions the three-way interaction effect, with an actual significance level of 0.053, was assumed to be significant. Is this appropriate statistical practice? Why or why not?   
+## Task 1: Solution 
 
 
+Q1) Write a summary table of the analysis ensuring all 7 effects are presented. Include appropriate error terms.    
+
+![Anova Table](anova_table.jpg)   
+
+Q2) What are the mean stress levels for male patients at time 1, time 2 and time 3?    
+
+**2.56, 2.83, 3.22** 
+
+Q3) What are the mean stress levels for female spouses at time 1, time 2 and time 3?  
+
+**3.50, 3.58, 3.42**
+
+Q4) What is the marginal mean stress level for male spouses?    
+
+**3.35**
+
+Q5) What is the marginal mean stress level for female patients?      
+
+**3.22**
+
+Q6) Plot the three-way interaction by role and gender for each level of time? What interpretation would you offer for it?  
+
+**Yes the three way interaction is significant, F(1.91,175)=3.435, p=.037. By inspecting the cell means the three-way interaction seems to be quite complex. For the male-spouse and the female-patients there seems to be a decrease in stress levels from time1 to time2 followed by an increase in stress levels from time2 to time3. However, this pattern is different for the male-patients and the female spouses. The male-patients seem to show a general increase in stress levels from time1 to time2 to time3. The female-spouses seem to show no difference in stress levels across the three time intervals.**
 
 
+Q7) Given that the three-way interaction effect is significant, are the other significant effects of interpretative importance?    
 
-## Task 1 Solution   
-
-Q1) How many respondents’ data are included in the analysis of variance? Quite a few of the overall sample’s respondents have not been included. What, specifically, may be the reason for this?    
-
-**Even though we have 1473 participants (id) we see that hapmar only has 792 observations. This number could actually be reduced more as we have missing data in other factors too. This is a general survey with respondents sampled from a large, general population. In this analysis, the DV is a measure of marital happiness. It is likely that most of the missing data occurs for respondents in the sample who are not or have never been married and, thus, cannot respond to the marital happiness measure.** 
-
-Q2) Produce the table of marginal means for this study.  
-
-**See code below**
- 
-Q3) What is the marginal mean marital happiness for female respondents?   
-
-**1.38**
-
-Q4) What are the marginal means for the RACE x SEX interaction?  
-
-**White males: 1.35. White females: 1.37. Black males: 1.66. Black Females: 1.49**
-
-Q5) Report the F-value, Degrees of freedom and significance level for all effects in the design.  How many degrees of freedom are associated with the error term?   
-
-**Main effect of race: F(1,579) = .164, p = .685**   
-**Main effect of sex: F(1,579) = .563, p = .453**   
-**Main effect of paeindex: F(1,579) = 5,826, p = .016**   
-**Race x Sex interaction: F(1,579) = .538, p = .464**   
-**Race x Paeindex interaction: F(1,579) = 6.219, p = .013**   
-**Sex x Paeindex interaction: F(1,579) = 3.775, p = .053**   
-**Race x Sex x Paeindex interaction: F(1,579) = 3.753, p = .053**   
-**df for error term = 579**
-
-Q6) Assume that the three-way interaction is significant. What interpretation would you offer this effect?    
-
-**Based upon inspection of the cell means, there generally appears to be very small differences in marital happiness in relation to the PAEINDEX. However, this seems not to be the case for Black Male respondents. Within this combination of the Race and Gender factors there is noticeably larger difference with respondents in this category whose fathers did not finish high school being less happy in their marriages (high numbers indicate greater marital unhappiness) than those whose fathers had finished high school. This represents a distinctive pattern of marital happiness associated with distinctive combinations of the Race, Sex and PAEINDEX factors.**
-
-Q7) Assuming that the three-way interaction effect is significant, are the other significant effects of interpretative importance? How should effects with such significance levels best be presented? 
-
-**This is an issue researchers have been arguing about for decades. Generally, since the marginally significant three-way interaction indicates that marital happiness is complexly related to distinctive combinations of Race, Sex and PAEINDEX, the other significant main and interaction effects are not important to interpretation of the study’s results since the meaning of such effects are qualified by the significant three-way interaction.**
-
-
-Q8) In the previous questions the three-way interaction effect, with an actual significance level of 0.053, was assumed to be significant. Is this appropriate statistical practice? Why or why not?  
-
-**It is not appropriate to treat such an effect as being significant since .053 is not less than .05. However, it is quite customary to consider such effects as being “marginally” significant and to include their consideration in interpretation of a study’s findings. Normally, marginally significant results are regarded with some caution and it is typical to want to see such effects replicated before they are given full stature in the research literature.**
-
+**No. There are only two other effects that are significant: the main effect of Role and the main effect of Stress. However, these main effects are not interpretable since what happens at the three levels of stress and the two levels of Role is dependent on how they interact with each other and the variable for Gender.**
 
 
 ```{r task1, echo=TRUE, message=FALSE, warning=FALSE}
@@ -105,175 +102,111 @@ library(rstatix) ### used for our ANOVA, anova_test()
 library(ggpubr) ### used for graphs such as gghistogram()
 library(emmeans)
 
-df <- read_sav("gss.sav")
+df <- read_csv("mixed_anova.csv")
 
 
-df <- df %>% 
-  filter(race == 1 | race == 2) ## filter cases for race=1 or race=2, that way we also remove missing values cases
+df$gender <- factor(df$gender, levels = c(1,2),
+                    labels = c("male", "female"))
 
-df$sex <-factor(df$sex, 
-                       levels=c(1,2), 
-                       labels=c("male", "female"))
+df$role <- factor(df$role, levels = c(1,2),
+                     labels = c("patient", "spouse"))
+
+df$fno <- as.factor(df$fno)
+
+df$time <- as.factor(df$time)
+  
+  
+
+  
+anova1 <- anova_test(data =df, dv = score, 
+                     wid = fno,
+                     between = c(gender, role),
+                     within = time,
+                     type = 3,
+                     detailed = TRUE)
+
+anovatable<-get_anova_table(anova1, correction = "HF")
+anovatable
 
 
-df$race <-factor(df$race, 
-                       levels=c(1,2), 
-                       labels=c("white", "black"))
-
-
-df$paeindex <-factor(df$paeindex, 
-                       levels=c(1,2), 
-                       labels=c("highschool", "posthighschool"))
-
-## upon inspecting df we see that hapmar is described as unknown
-## we convert it to numeric
-## this may not happen in all cases but you should always check your variables
-
-df$hapmar <- as.numeric(df$hapmar)
-
-### initial look at the overall dataframe
-## we can see the total number of participants from the max id
-## Question 1
-summary(df)
-
-## OR
 df %>% 
-  get_summary_stats(hapmar, type = "mean_sd")
+  group_by(gender, role, time) %>% 
+  summarise(mean = mean(score))
 
 
-### getting marginal means
-### grouping per race, sex, and parental educationindex 
 df %>% 
-  group_by(race, sex, paeindex) %>% 
-  get_summary_stats(hapmar, type = "mean_sd")
+  group_by(gender, role) %>% 
+  summarise(mean = mean(score))
 
 
 
-### grouping per sex 
-### Question 3
-df %>% 
-  group_by(sex) %>% 
-  get_summary_stats(hapmar, type = "mean_sd")
-
-
-## marginal means for race x sex
-### grouping per race, sex 
-### Question 4
-df %>% 
-  group_by(race, sex) %>% 
-  get_summary_stats(hapmar, type = "mean_sd")
-
-
-
-
-
-### as discussed in week 30, the following are all possible ways to carry out the ANOVA
-### Question 5
-df %>% 
-  anova_test(hapmar ~ race*sex*paeindex, type = 3, detailed = TRUE)
-
-
-model <-lm(hapmar ~ race*sex*paeindex, data=df,
-          contrasts=list(race=contr.sum, sex=contr.sum, paeindex=contr.sum),
-          type = 3)
-car::Anova(model, type=3)
-
-
-### you should not use the following way as the design is not balanced
-result.aov <- aov(hapmar ~ race*sex*paeindex, data=df)
-summary(result.aov)
-
-
-## the following is just an example on how to inspect this visually
-## ggline requires ggpubr
-## in your lecture slides we also used ggplot2
-## you can try using ggplot2 for more practice
-
-ggline(df, x = "race", y = "hapmar", 
-       color = "sex",  ###instead of color you could use line etc
-       facet.by = "paeindex", 
-       add = "mean_se")
-
-
+ggline(df, x = "time", 
+       y = "score", 
+       color = "role",
+       facet.by = "gender",
+       add = "mean_se"
+       )
 ```
 
 
 
 
+## Task 2 : Simple effects analysis for a three way mixed model ANOVA.
 
-## Task 2 : Simple effects analysis with a 2 x 2 x 2  between subjects design.
+	In view of the significant three-way interaction in the results of task 1, simple effects analyses need to be carried out. A useful simple effect analysis for this design would be to separate each cell of the 2 x 2 between subject factor and analyse the effects of stress levels. These are the simple main effects analysis we are going to carry out here. Carry out each of the following simple main effects analyses:
 
-	With designs as complicated as this 2 x 2 x 2  between subjects study, simple effects analysis can be very complicated as there are a large number of possible combinations of variables that can be investigated. Usually the researcher has a hypothesis in mind and only carries out the simple effect comparisons that would provide useful information about this hypothesis, or the researcher uses simple effects to help describe the nature of significant results from the ANOVA. Here we will use two simple interaction effects to help describe the obtained three-way interaction:    
+2(a) Test the difference in stress levels at time 1, 2 and 3 with male patients..
+2(b): Test the difference in stress levels at time 1, 2 and 3 with male spouses
+2(c): Test the difference in stress levels at time 1, 2 and 3 with female patients
+2(d): Test the difference in stress levels at time 1, 2 and 3 with female spouses
 
-1. Looking at the interaction between the father’s education level and sex on how happily married  respondents are, when white.   
-2. Looking at the interaction between the father’s education level and sex on how happily married  respondents are, when black.  
+Q1) Report the F-value, degrees of freedom, significance level and MS error (error variance) for each tested simple main effect.   
 
+Q2) Give a verbal interpretation of each tested simple effect.   
 
-Q1) Report the F-value, degrees of freedom, and significance level for each tested simple interaction and main effect.   
-
-Q2) Give a verbal interpretation of each tested simple effect.    
-
-Q3) Given the pattern of simple effects, what interpretation would you offer for the (marginally)  significant three-way interaction in the ANOVA?    
-
-
-
+Q3) Given the pattern of simple effects, what interpretation would you offer for the significant three-way interaction obtained in the ANOVA? (Hint: plot a graph of the two-way interaction within each level of time).   
 
 
 ## Task 2: Solution   
 
 
-Q1) Report the F-value, degrees of freedom and significance level for each tested simple interaction and main effect.   
+Q1) Report the F-value, degrees of freedom, and significance level for each tested simple main effect.  
 
-**F(1,579) < 0.001, p = .990**   
-**F(1,579) = 3.949, p = .047**
+**Simple main effect of time on male patient, F(2.02,34.4) =   1.52, p = .234**    
+**Simple main effect of time on male spouse, F(2.13,47.4) =   5.71, p = .006**  
 
-Q2) Give a verbal interpretation of each tested simple effect.  
+**Simple main effect of time on female patient, F(1.82,76.6) =   8.96, p < .001**   
+**Simple main effect of time on female spouse, F(2.21,24.3) =  0.053, p = .948**    
 
-**Simple Sex by Paeindex interaction within the White condition are distinctive levels of marital happiness associated with distinctive levels of Sex and the PAEINDEX for the White respondents? Simple Sex by Paeindex interaction within the Black condition are distinctive levels of marital happiness associated with distinctive levels of Sex and the PAEINDEX for the Black respondents?**
+Q2) Give a verbal interpretation of each tested simple effect.    
+
+**TIME WITHIN MALE-PATIENTS: Do the three time intervals differ within the male patients?**    
+**TIME WITHIN MALE-SPOUSES: Do the three time intervals differ within the male spouses?**   
+**TIME WITHIN FEMALE-PATIENTS: Do the three time intervals differ within the female patients?**     
+**TIME WITHIN FEMALE-SPOUSES: Do the three time intervals differ within the female spouses?**   
 
 
-Q3) Given the pattern of simple effects, what interpretation would you offer for the (marginally)  significant three-way interaction in the ANOVA?  
+Q3) Given the pattern of simple effects, what interpretation would you offer for the significant three-way interaction obtained in the ANOVA? (Hint: plot a graph of the two-way interaction within each level of time)   
 
-**Within Black respondents, the respondent’s father’s education has more of an effect on the happiness of their marriage when the respondent is male than it does when they are female. Among White respondents, sex does not affect whether father’s education itself effects happiness of marriage. **
-
+**The simple main effects show that there is no significant difference in stress levels for the male-patients and the female-spouses. However, for the male-spouses and the female-patients there is an initial decrease in stress levels from time1 to time2 and then an increase in stress levels from time2 to time3.**
 
 
 ```{r task2.solution3, echo=TRUE, message=FALSE, warning=FALSE, error=TRUE}
 
-## As per your lecture slides we have to use lm() and define the model
+df %>% 
+  group_by(gender, role) %>% 
+  anova_test(dv = score, 
+             wid = fno,
+             within = time,
+             type = 3,
+             detailed = TRUE) %>% 
+  get_anova_table(correction = "HF")
 
-mmodel <-lm(hapmar ~ race*sex*paeindex, data=df,
-          contrasts=list(race=contr.sum, sex=contr.sum, paeindex=contr.sum),
-          type = 3)
+ggline(df, x = "gender", 
+       y = "score", 
+       color = "role",
+       facet.by = "time",
+       add = "mean_se"
+       )
 
-
-## we then use the emmeans package
-## specifically the functions joint_test() for simple main effects
-## within the levels of the second factor
-
-simple <- joint_tests(model, by ="race")
-simple
-
-
-
-## The following is not required by the question
-## we provide it as a demonstration of how to follow-up
-## for pairwise comparisons and acquiring estimated means
-## note that these estimated means may differ than the original means
-## you acquired in task 1.
-
-
-## we then follow this up with emmeans()
-## in order to get pairwise comparisons
-## and marginal means
-
-## we declare our model, and the order or variables
-simple_sex <- emmeans(model,  ~ sex * paeindex | race)
-
-## we call pairs() to run the pairwise comparisons
-simple_sex %>% 
-  pairs()
-
-## print() displays the marginal means
-print(simple_sex)
 ```
