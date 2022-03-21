@@ -18,7 +18,7 @@ Simple effects analysis is relatively straightforward if you can carry out simpl
 
 ## Today's exercises   
 
-In today's tasks you are going to use the data file called **mixed_anova.csv**. This data file includes the stress levels of patients and spouses (both male and female) at time 1, time 2 and time 3. This exercise involves a mixed-model ANOVA with three factors (a 3 x 2 x 2 design). The first factor of **time** has three levels which represent the stress levels being repeatedly measured at time 1 (the variable stress1), 2 (the variable stress2) and 3 (the variable stress3). The second factor in the design (**gender**) has two levels and is a between subjects factor. If the respondent is male then gender = 1; if female, gender = 2. The third factor (**role**) in the design has two levels and is a between subjects factor.  If the respondent is a patient then role = 1; if a spouse of the patient, role = 2. 
+In today's tasks you are going to use the data file called **mixed_anova.csv**. This data file includes the stress levels of patients and spouses (both male and female) at time 1, time 2 and time 3. This exercise involves a mixed-model ANOVA with three factors (a 3 x 2 x 2 design).   
 
 Factor 1: time, three levels, repeated measures.   
 Level 1 = stress1   
@@ -37,12 +37,12 @@ DV: score, reported stress
 
 Some of the packages you might need this week.   
 
-`library(tidyverse) ### for general purpose functions`   
-`library(rstatix) ### used for our ANOVA, anova_test()`
-`library(ggpubr) ### used for graphs such as gghistogram()`     
+`library(tidyverse) ### for general purpose functions`      
+`library(rstatix) ### used for our ANOVA, anova_test()`     
+`library(ggpubr) ### used for graphs such as gghistogram()`        
   
 
-##Task 1:  Mixed Model Three factor ANOVA.   
+## Task 1:  Mixed Model Three factor ANOVA.   
 
 Carry out the Mixed model ANOVA.   
 

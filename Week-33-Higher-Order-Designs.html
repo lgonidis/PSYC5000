@@ -177,7 +177,7 @@ pre code {
 </div>
 <div id="todays-exercises" class="section level2">
 <h2>Today’s exercises</h2>
-<p>In today’s tasks you are going to use the data file called <strong>mixed_anova.csv</strong>. This data file includes the stress levels of patients and spouses (both male and female) at time 1, time 2 and time 3. This exercise involves a mixed-model ANOVA with three factors (a 3 x 2 x 2 design). The first factor of <strong>time</strong> has three levels which represent the stress levels being repeatedly measured at time 1 (the variable stress1), 2 (the variable stress2) and 3 (the variable stress3). The second factor in the design (<strong>gender</strong>) has two levels and is a between subjects factor. If the respondent is male then gender = 1; if female, gender = 2. The third factor (<strong>role</strong>) in the design has two levels and is a between subjects factor. If the respondent is a patient then role = 1; if a spouse of the patient, role = 2.</p>
+<p>In today’s tasks you are going to use the data file called <strong>mixed_anova.csv</strong>. This data file includes the stress levels of patients and spouses (both male and female) at time 1, time 2 and time 3. This exercise involves a mixed-model ANOVA with three factors (a 3 x 2 x 2 design).</p>
 <p>Factor 1: time, three levels, repeated measures.<br />
 Level 1 = stress1<br />
 Level 2 = stress2<br />
@@ -191,8 +191,11 @@ Level 2 = spouse</p>
 <p>DV: score, reported stress</p>
 <p>Some of the packages you might need this week.</p>
 <p><code>library(tidyverse) ### for general purpose functions</code><br />
-<code>library(rstatix) ### used for our ANOVA, anova_test()</code> <code>library(ggpubr) ### used for graphs such as gghistogram()</code></p>
-<p>##Task 1: Mixed Model Three factor ANOVA.</p>
+<code>library(rstatix) ### used for our ANOVA, anova_test()</code><br />
+<code>library(ggpubr) ### used for graphs such as gghistogram()</code></p>
+</div>
+<div id="task-1-mixed-model-three-factor-anova." class="section level2">
+<h2>Task 1: Mixed Model Three factor ANOVA.</h2>
 <p>Carry out the Mixed model ANOVA.</p>
 <p>Q1) Write a summary table of the analysis ensuring all 7 effects are presented. Include appropriate error terms.</p>
 <p>Q2) What are the mean stress levels for male patients at time 1, time 2 and time 3?</p>
