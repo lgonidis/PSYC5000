@@ -1,0 +1,376 @@
+---
+title: "Week 16 Repeated Measures ANOVA"
+author: "Dinkar Sharma, Lazaros Gonidis"
+date: "19/09/2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+options(digits = 3)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Just like last week’s exercise, this exercise requires you to investigate a significant interaction by computing a series of simple main effects. The technique for a completely within-participants design is a little different to the one you already know, so again we will work through an example to help you learn it. Some of the packages and functions we will be using are:    
+
+`library(haven) ### used to load SPSS .sav files, read_sav()`  
+`library(tidyverse) ### for general purpose functions`   
+`library(rstatix) ### used for our ANOVA, anova_test()`
+`library(emmeans) ### used for emmeans() to explore simple main effects`    
+`library(ggpubr) ### used for graphs such as gghistogram()`     
+`library(gmodels) ### used for fit.contrast() to create contrasts`   
+
+Let’s start by opening the dataset: **2-wayWithin-SubectsAnova.sav**, which is in the data files folder in Moodle. This is data from a cognitive experiment, in which participants had to tap with one hand while simultaneously doing a memory task, which involved remembering either words or the position of objects. So there are two IVs here: let’s call them **Hand** (left or right) and **Task** (words or positions). Start by carrying out the overall ANOVA as it is shown in the lecture slides. You should find that there is a significant interaction between the two factors, *F*(1,23) = 4.807, *MSE* = 4.460, *p* = .039. If you look at the means, or draw a graph, you will see that the effect of task is much larger in the left hand condition than it is in the right hand condition. Like the last exercise, we now need to conduct simple effects to further describe the interaction. 
+
+NB: The method that is described below follows the advice given by Howell (1997).   Conceptually, simple main effects analyses involves breaking down the two-way interaction into a number of one-way analyses.  With a completely within-subjects design you do this by running separate one-way analysis of variance.  For this example the simple main effects analyses that you want to do are the following.
+ 
+(A) Simple main effect of HAND within words
+(B) Simple main effect of HAND within position
+(C) Simple main effect of TASK within left hand
+(D) Simple main effect of TASK within right hand
+
+
+Here is how to do the simple main effects analysis in R:   
+
+We will start by running the overall analysis (‘omnibus analysis’) as we have done in previous weeks. We will open the datafile, assign it to a dataframe, declare our factor levels and labels, and acquire means. Note that we will be using the function `factor` and not `as.factor` as it allows us to quickly specify levels and labels.
+
+
+
+
+```{r example, echo=TRUE, message=FALSE, warning=FALSE}
+library(haven) ### used to load SPSS .sav files, read_sav()
+library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+
+df <- read_sav("2-WayWithin-SubjectsAnova.sav")
+
+```
+
+By observing your df dataframe it is apparent that the dataframe is in **wide** format and not **long** format. Before moving on to the main analysis we need to bring it to **long** format. Furthermore, for our repeated measures anova we need a participant id column which currently is missing. We will add one which will add the row number as participant id. We will do that by using the expression `seq.int(nrow())`
+
+
+```{r example_long, echo=TRUE, message=FALSE, warning=FALSE}
+## adding participant id column
+df$id <- seq.int(nrow(df))
+
+## converting our wide format to long
+df_long <- df %>% 
+  pivot_longer(!id, 
+               names_to = c("Hand", "Task"),
+               names_pattern = "(.*?)Hand(.*)",
+               values_to = "Performance")
+```
+
+In the code above we used a number of arguments with the `pivot_longer` function in order to convert our **wide** structure to **long**.   
+
+1. **!id** here we specify to our function that we will work with all our columns except the **id** column. This is because the **id** column does not contain any measurements that need restructuring, it merely provides the code for each participant.   
+2. **names_to = c("Hand", "Task")** here we specify the names of our new factor columns. We will need two new factors called **Hand** and **Task**.    
+3. **names_pattern = "(.*?)Hand(.*)"** here we instruct R where to look in the existing columns in order to extract the factor levels information. If you look at your **df** columns you will see **LeftHandWords**, **LeftHandPosition**, **RightHandWords**, **RightHandPosition**. So the information about the levels is provided on the left and right of **Hand**, Left-Right, Words-Position. **"(.*?)Hand(.*)"**instructs R to use all the characters to the left of **Hand** to name the levels of one factor, and the characters to the right of **Hand** to name the levels of the second factor. This is something you need to do if you have more than two measurement columns that need to be restructured to factor levels.
+
+```{r example_long2, echo=TRUE, message=FALSE, warning=FALSE}
+df_long$Hand <-factor(df_long$Hand,
+                      levels=c("Left","Right"),
+                      labels =c("Left","Right"))
+
+df_long$Task <-factor(df_long$Task, 
+                      levels=c("Words","Position"),
+                      labels=c("Words","Position"))
+
+df_long$id <- factor(df_long$id)
+
+summary(df_long)
+```
+
+We are now ready to run our ANOVA as it is shown in the lecture slides.
+
+
+```{r example_anova, echo=TRUE, message=FALSE, warning=FALSE}
+result.anova <- anova_test(data = df_long, 
+           dv = Performance, 
+           wid = id,
+           within = c(Hand, Task),
+           detailed = TRUE)
+
+result.anova
+
+
+```
+
+And we will follow-up the interaction with two separate one-way ANOVAs. One for Hand and one for Task.
+
+```{r example_anova2, echo=TRUE, message=FALSE, warning=FALSE}
+
+df_long %>% 
+  group_by(Hand) %>%
+  anova_test(dv = Performance, 
+           wid = id,
+           within = Task,
+           detailed = TRUE)
+
+df_long %>% 
+  group_by(Task) %>%
+  anova_test(dv = Performance, 
+           wid = id,
+           within = Hand,
+           detailed = TRUE)
+
+```
+
+From the output above we can see that we have:    
+1. Simple main effect of HAND within word is not significant, F(1, 23) = 1.926, p = 0.178.   
+2. Simple main effect of HAND within position is also not significant, F(1,23) = .405, p = 0.531.    
+3. Simple main effect of TASK within right hand is not significant, F(1,23) = 0.298, p = 0.590.    
+4. Simple main effect of TASK within left hand is significant, F(1, 23) = 5.122, p = .033.    
+
+## Reporting in results section   
+We would report the above findings as follows: The significant interaction between hand and task was further investigated using simple main effects analysis.  This showed that there was a significant simple main effect of TASK within left hand, *F*(1,23) = 5.122, *p* = .033. This indicates that left-hand tapping was disrupted to a greater extent by memorizing words than memorizing positions. All other simple main effects were not significant (all *F*s < 2, *p* > 0.1). 
+
+
+## Task 1.a: A One factor, two level repeated measures ANOVA.
+ 
+	In previous exercises we have used the data file **stress.csv** which involved stress levels of patients and spouses (both male and female) being measured shortly after and three months after cancer was diagnosed. In the t-test example exercise, you carried out a t-test to investigate the difference between stress at time 1 (called STRESS1 in the data file) and stress at time 2 (STRESS2). Here, in task 1, this same analysis is to be generated but this time using the repeated measures ANOVA procedure. 
+
+Q1) Report the F-value, degrees of freedom and significance level for this repeated measures One-Way ANOVA.    
+Q2) Are the significance levels the same here as in Week 26?        
+Q3) How does the F value in the results of this ANOVA relate to the t value in Week 26?   
+
+
+
+
+## Task 2. Repeated Measures Two Way ANOVA.   
+
+For this task you will need the file **repeated2by4.csv**.
+Here, we are going to look at the results of a study which investigates performance on a word processing task with differing configurations of computer screens. A psychologist is hired to find the best screen configuration for optimum operator performance. Specifically, the psychologist looks at the effects of illumination levels and screen colours on performance of a word processing task. The research design is a 2 x 4 factorial within subjects design. The first factor manipulates general illumination levels, with the computer terminal located in a room with low or high light. The second factor varies the background colour of the terminal screen. Screen colours used in the study were Orange, Green, Black and Blue. Performance on a standardised word-processing task is measured and scored on a scale of 0-25 with higher numbers indicating better performance. The experiment is a completely within subjects design. This means that each of the study’s five participants served in all eight cells of the study, generated by the factorial combination of two levels of illumination and four levels of screen colour. As a result, each person generated eight scores labelled as follows: 
+
+LOORANGE = illumination is low and the screen colour is orange
+LOGREEN = illumination is low and the screen colour is green.    
+LOBLACK = illumination is low and the screen colour is black
+LOBLUE	= illumination is low and the screen is blue
+
+HIORANGE = illumination is high and the screen colour is orange
+HIGREEN	= illumination is high and the screen colour is orange
+HIBLACK	= illumination is high and the screen colour is black
+HIBLUE 	= illumination is high and the screen colour is blue.
+
+Q1) How many participants are in this study?    
+Q2) What is the mean performance in the high illumination / blue screen cell?    
+Q3) What is the marginal mean performance for terminals with green screens?        
+Q4) Report the F-value, degrees of freedom, and significance level  for the ILLUMINATION, COLOUR and ILLUMINATION x COLOUR effects.     
+Q5) Is the interaction effect significant? If so, what interpretation would you offer for it?
+
+
+
+## Task 3: Simple Effects Analysis With Repeated measures.   
+
+For the investigation in task 2, simple effects analysis needs to be carried out in order to uncover the exact nature of the interaction. For example, we will be testing for differences in performance between the four colours when the illumination is low. This will be an analysis that investigates levels 1 (orange), 2 (green), 3 (black) and 4(blue) of the factor colour, within level 1 of the factor ILLUM. Similarly, we can look at the difference between high and low illumination when the screen is orange. This will involve investigating a difference between levels 1 (low illum) and 2 (high illum) of the factor ILLUM within level 1 (orange) of the factor COLOUR.  Carry out all possible simple main effects.
+
+Q1) Report the F-value, degrees of freedom, and significance level for each tested simple main effect.    
+Q2) Give a verbal interpretation of each tested simple effect.      
+Q3) Given the pattern of simple effects, what interpretation would you offer for the significant two-way interaction in the ANOVA?    
+
+
+## Solutions
+
+## Task 1:
+
+Q1) Report the F-value, degrees of freedom, and significance level  for this repeated measures One-Way ANOVA.    
+**F(1,97) = 5.096, p = .026. **
+
+Q2) Are the significance levels the same here as in week 26 Example exercise? 
+**Yes, for the t-test comparing these same means in week 26 Example exercise, the significance level was also .026**
+
+Q3) How does the F value in the results of this ANOVA relate to the t value in week 26 Example exercise?   
+**The fact that the significance levels of the ANOVA and t-test of these same data resulted in identical significance levels suggests that the ANOVA and t-test are mathematically identical or at least closely related. In fact they are. If you take the obtained t-value, t(97) = 2.2575 and square it, 2.25752, the result is 5.096 which is the value of F obtained in the analysis above.**
+
+
+## Task 1 Code
+```{r task1a, echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+
+
+df <- read_csv("stress.csv")
+
+
+### removing fno, gender, role and cond from the working dataframe
+
+df1<- select(df, !c(fno,gender, role, cond))
+
+## creating an id variable
+df1$id <- seq.int(nrow(df1))
+
+
+### wide to long
+df_long <- df1 %>% 
+  pivot_longer(c(stress1, stress2), 
+               names_to = c("Time"),
+               values_to = "Stress")
+### Time as factor
+df_long$Time <-factor(df_long$Time)
+
+### id as factor
+df_long$id <- factor(df_long$id)
+
+### have an initial look at descriptive stats
+summary(df_long)
+
+
+
+
+result.anova <- anova_test(data = df_long, 
+                           dv = Stress, 
+                           wid = id,
+                           within = Time,
+                           detailed = TRUE)
+result.anova
+
+```
+
+
+## Task 2:
+
+Q1) How many participants are in this study?    
+**Five**  
+
+Q2) What is the mean performance in the high illumination / blue screen cell?      
+**16.40**
+
+Q*3) What is the marginal mean performance for terminals with green screens?    
+**8.7**
+
+Q4) Report the F-value, degrees of freedom, and significance level  for the ILLUMINATION, COLOUR and ILLUMINATION x COLOUR effects.      
+**Main effect of illumination: F(1,4) = 46.5, p = .002**     
+**Main effect of colour: F(3,12) = 70.9, p < .001**      
+**Interaction: F(3,12) = 18.00,  p < .001**     
+
+
+
+Q5) Is the interaction effect significant? If so, what interpretation would you offer for it?    
+**Yes it is. It looks like the effect of illumination is bigger for blue screens than it is for the other screen colours. Once again, simple effects analysis is needed to be sure. **    
+
+## Task 2 Code:
+
+```{r task2, echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+
+
+
+
+df <- read_csv("repeated2by4.csv")
+
+
+### remove missing values before converting wide to long
+## this is because we want to keep participants having both
+## stress1 and stress2 scores
+
+## acquiring initial descriptives
+summary(df)
+
+## marginal means
+df %>% 
+  group_by()
+
+
+
+
+### wide to long
+df_long <- df %>% 
+  pivot_longer(!sno, 
+               names_to = c("illumination", "colour"),
+               names_pattern = "(.*?)_(.*)",
+               values_to = "Performance")
+
+### sno as factor
+df_long$sno <-factor(df_long$sno)
+
+### illumination as factor
+df_long$illumination <- factor(df_long$illumination)
+
+### colour as factor
+df_long$colour <- factor(df_long$colour)
+
+### have an initial look at descriptive stats
+summary(df_long)
+
+
+
+## cell means for colour by illumination
+
+df_long %>% 
+  group_by(colour, illumination) %>% 
+  get_summary_stats(Performance)
+
+
+### marginal mean for green screen
+### grouping by colour
+df_long %>% 
+  group_by(colour) %>% 
+  get_summary_stats(Performance)
+
+
+result.anova <- anova_test(data = df_long, 
+                           dv = Performance, 
+                           wid = sno,
+                           within = c(colour, illumination),
+                           detailed = TRUE)
+result.anova
+```
+
+## Task 3:
+
+Q1) Report the F-value, degrees of freedom, significance level and MS error (error variance) for each tested simple main effect.      
+**SCREEN COLOUR WITHIN LOW ILLUMINATION: F(3,12) = 41.8, p < .001**   
+**SCREEN COLOUR WITHIN HIGH ILLUMINATION: F(3,12) = 58.5, p < .001**    
+**ILLUMINATION WITHIN ORANGE SCREENS: F(1,4) = 40.00, p = .003**    
+**ILLUMINATION WITHIN GREEN SCREENS: F(1,4) = 32.7, p = .005**     
+**ILLUMINATION WITHIN BLACK SCREENS: F(1,4) = 22.2, p = .009**    
+**ILLUMINATION WITHIN BLUE SCREENS: F(1,4) = 33.7, p = .004**    
+
+Q2) Give a verbal interpretation of each tested simple effect. 
+SCREEN COLOUR WITHIN LOW ILLUMINATION: **Do the four screen colour means differ within the low illumination condition?**
+
+SCREEN COLOUR WITHIN HIGH ILLUMINATION: **Do the four screen colour means differ within the high illumination condition?**
+
+ILLUMINATION WITHIN ORANGE SCREENS: **Do the high and low illumination means differ when subjects use the orange screens?**
+
+ILLUMINATION WITHIN GREEN SCREENS: **Do the high and low illumination means differ when subjects use the green screens?**
+
+ILLUMINATION WITHIN BLACK SCREENS: **Do the high and low illumination means differ when subjects use the black screens?**
+
+ILLUMINATION WITHIN BLUE SCREENS: **Do the high and low illumination means differ when subjects use the blue screens?**
+
+Q3) Given the pattern of simple effects, what interpretation would you offer for the significant two-way interaction in the ANOVA?
+
+**The results of the simple main effects analyses are not all that helpful in this particular case with respect to describing the interaction effect. Perhaps the most reasonable description to offer based on the simple main effects analyses is that the differences between the four screen colours were more pronounced with high illumination than with low illumination. This description is based upon the fact that the magnitude of the obtained F-value when testing the simple main effect of screen colour within high illumination was noticeably larger than when testing for the effect of screen colour within the low illumination condition (F(3,12) = 58.5 versus F(3,12) = 41.8).**
+
+
+## Task 3 Code:
+
+```{r task3, echo=TRUE, message=FALSE, warning=FALSE}
+
+
+df_long %>% 
+  group_by(illumination) %>%
+  anova_test(dv = Performance, 
+             wid = sno,
+             within = colour,
+             detailed = TRUE) %>% 
+  get_anova_table()
+
+
+df_long %>% 
+  group_by(colour) %>%
+  anova_test(dv = Performance, 
+             wid = sno,
+             within = illumination,
+             detailed = TRUE) %>% 
+  get_anova_table()
+
+
+```
