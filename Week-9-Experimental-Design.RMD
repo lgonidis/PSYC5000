@@ -1,0 +1,308 @@
+---
+title: "Week 9. Experimental Designs"
+author: "Dinkar Sharma, Lazaros Gonidis"
+date: "19/09/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Experimental Designs
+
+Experimental designs can have one or more independent variables (IV) and one or more dependent variables (DV). It is important to know whether your IV is a between-participants variable or a within-participants variable as this determines how the data is presented to you. However, different analysis techniques may require different dataframe structures, what we call **long format** and **wide format**. We will discuss this further below and see how we can change our dataframe from one format to the other.
+
+The rule of thumb to remember is that the majority of analyses we will run requires the data to be in **long format** but there may be some exceptions to this. Let us have a look at some imaginary data below.
+
+
+## Between-participants Design  
+
+The **Recall_score** below represents the DV: number of words recalled.
+The **Time_of_Day** represents either the **am** or **pm** session that each participant was randomly allocated at. The **Participant_number** is the unique identifier for each participants. Each participant only completed one of the **am** and **pm** session. 
+
+
+
+```{r between, echo=TRUE, message=FALSE, warning=FALSE}
+### create a vector that will contain our participant number
+Participant_number <- c(1,2,3,4,5,6,7,8,9,10)
+
+### create a vector that will contain time of the session
+Time_of_Day <-c("am", "am", "am", "am", "am", "pm", "pm", "pm", "pm", "pm")
+
+### create a vector that will contain our measurement
+Recall_score <-c(10, 8, 6, 5, 8, 6, 4, 5, 2, 5)
+
+### bring all the above vectors together to create a dataframe
+df <- data.frame(Participant_number,Time_of_Day,Recall_score)
+
+df
+```
+
+
+```{r long_table, eval=FALSE, include=FALSE}
+library(knitr)
+kable(df, align = "l")
+
+```
+
+The above table is presenting our data in what we call **long format** where all values of our DV are presented in one column. What separates our participants is the different levels for our IV, **Time of Day** **am** and **pm**. This is how we typically represent between participants experimental designs.
+
+
+## Within-participants Design 
+
+We now have a different design where each participant performs the task twice, once at **am** and once again at **pm**
+
+```{r within, echo=TRUE, message=FALSE, warning=FALSE}
+
+Participant_number <- c(1,2,3,4,5)
+am <-c(10, 8, 6, 5, 8)
+pm <-c(6, 4, 5, 2, 5)
+
+df2 <- data.frame(Participant_number,am,pm)
+```
+
+
+```{r wide_table, echo=FALSE}
+library(knitr)
+kable(df2, align = "l")
+
+```
+
+From the table above you can see that we have two columns with recorded observations per participant, the **am** column and the **pm** one. Typically, we refer to this format as **wide format**. As mentioned above, in R most analyses require you to have your file in **long format**. Below we will see how we can change from one type to the other.
+
+
+## Restructuring data structures from **wide** to **long**
+
+
+```{r restructure, echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)
+
+df2_long <- pivot_longer(df2, cols = am:pm, names_to = "time", values_to = "recall")
+
+df2_long
+
+```
+
+
+Looking at the output above we can now see that we only have one measurement column called **recall**, this is our **DV**. And we only have one **IV** column called **time**. Let us also inspect the code:  
+```df2_long <- pivot_longer(df2, cols = am:pm, names_to = "time", values_to = "recall")```  
+
+Our function is called **pivot_longer()** and it took a number of arguments.  
+1. First we declared our dataframe **df2**  
+2. Then specify which columns contain our measurements **cols = am:pm**. This means I want all the columns from am to pm.  
+3. We then gave a name to the column that will contain our IV, we used the argument **names_to** for this. We chose to call it **time**.  
+4. Finally, we gave a name to the column that will contain our DV, we used the argument **values_to** for this. We chose to call it **recall**. 
+
+
+## Restructuring data structures from **long** to **wide**
+
+We will now work on the **df_long** dataframe and restructure it to bring it back to a wide format. This is just to illustrate how this process works. We will use the function **pivot_wider**.  
+
+```{r restructure2, echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)
+
+df2_wide <- pivot_wider(df2_long, names_from = "time", values_from = "recall")
+
+df2_wide
+
+```
+
+
+Our function is called **pivot_wider()** and it took a number of arguments.  
+1. First we declared our dataframe **df2_long**  
+2. Then we declared **names_from**, which states the column that contains the levels we will use to create the new measurement variables. In this case the column was called **time** and it contained two levels **am** and **pm**. Hence, we will have two new columns created with these names.   
+3. We then declared **values_from** which selects that column that currently contains our measurements. These measurements will be distributed to two new columns in the wide format dataframe.  
+
+You should now have an understanding of how we convert from long to wide and vice versa. Complete the two exercises below that will help you consolidate your learning.
+
+## Exercise 1
+The following table shows results from a study looking at the effects of Age on creativity scores in 15 participants. Similarly to above, write the right R code in order to create a dataframe with the following data:
+
+```{r Exercise 1, echo=FALSE, message=FALSE, warning=FALSE}
+### create a vector that will contain our Age 4 values
+Age4 <- c(3, 5, 7, 4, 3)
+
+### create a vector that will contain our Age 6 values
+Age6 <- c(9, 11, 14, 10, 10)
+
+### create a vector that will contain our Age 4 values
+Age8 <- c(9, 12, 9, 8, 9)
+
+### bring all the above vectors together to create a dataframe
+df1 <- data.frame(Age4, Age6, Age8)
+```
+
+```{r exercise1_table, echo=FALSE}
+library(knitr)
+kable(df1, align = "l")
+```
+
+Once you have your dataframe use the correct format (long or wide) in order to answer the following questions.  
+
+1. What are the means for each of the three groups?
+2. What are the standard deviation scores for each of the three Age groups?  
+3. What is the mean and standard error for the whole sample?
+
+You can find the solution for this excersise at the end of this document.
+
+
+## Exercise 2 
+
+A researcher investigated whether smoking cannabis can lead to short-term memory loss. Seven students, smokers who normally did not take cannabis, were recruited to answer difficult arithmetic questions under three conditions. In the placebo condition they smoked a herbal mixture, which they were told was cannabis. In the smoking conditions one was given a low dose of cannabis and one a high dose of cannabis. Similarly to above, write the right R code in order to create a dataframe with the following data:
+
+```{r Exercise 2, echo=FALSE, message=FALSE, warning=FALSE}
+### create a vector that will contain our Placebo values
+Placebo <- c(19,14,18,15,11,12,11)
+
+### create a vector that will contain our LowDose values
+LowDose <- c(16,8,17,16,14,10,9)
+
+### create a vector that will contain our HighDose values
+HighDose <- c(7,11,3,5,7,8,11)
+
+### bring all the above vectors together to create a dataframe
+df2 <- data.frame(Placebo, LowDose, HighDose)
+```
+
+```{r exercise2_table, echo=FALSE}
+library(knitr)
+kable(df2, align = "l")
+```
+
+Once you have your dataframe use the correct format (long or wide) in order to answer the following questions.
+
+1. What are the means for each of the placebo, low dose and high dose conditions?
+2. What are the standard deviation scores for each of the three conditions?
+3. What is the mean and standard error for the whole sample? 
+
+## Solutions
+
+### Exercise 1.   
+
+The first two questions in Exercise 1 can be answered with either using wide or long format. The third question requires you to have your dataframe in long format. If you chose to answer 1 and 2 using the wide format then all you had to do is call **mean()** and **sd()** for each variable. If you chose to convert the file to long format and then get the mean and sd per factor level that is also correct. There are many ways to acquire these stats from the long format. However, we will introduce you to a new package called **mosaic** that uses the symbol **~** to request results per level of our IV. One could say that mosaic is defining a model first and then acquiring the statistics. In our exercise our model would be **score per level of age**  (DV ~ IV), or in statistical model connotation **score ~ age**. This will also be the way we will be defining our models in this term prior to carrying out **analysis of variance**.
+
+### Creating the dataframe
+```{r ex1_dataframe, echo=TRUE, message=FALSE, warning=FALSE}
+### create a vector that will contain our Age 4 values
+Age4 <- c(3, 5, 7, 4, 3)
+
+### create a vector that will contain our Age 6 values
+Age6 <- c(9, 11, 14, 10, 10)
+
+### create a vector that will contain our Age 4 values
+Age8 <- c(9, 12, 9, 8, 9)
+
+### bring all the above vectors together to create a dataframe
+df1 <- data.frame(Age4, Age6, Age8)
+```
+
+
+### Solution of questions 1 and 2 usinng the wide format
+
+```{r ex1_wide, echo=TRUE}
+
+mean1 <- mean(df1$Age4)
+mean2 <- mean(df1$Age6)
+mean3 <- mean(df1$Age8)
+
+sd1 <- sd(df1$Age4)
+sd2 <- sd(df1$Age6)
+sd3 <- sd(df1$Age8)
+
+mean1
+mean2
+mean3
+sd1
+sd2
+sd3
+```
+
+
+
+### Solution of all 1, 2, 3 using a long format first.
+As you can see from the code below this approach is more elegant and less repetitive.
+
+```{r ex1_solution, echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(plotrix)  ### required for std.error()
+library(mosaic) ### alternative way to get statistics
+
+df1_long <- pivot_longer(df1, cols = 1:3, names_to = "age", values_to = "score")
+
+df1_long
+
+## convert age variable to factor variable
+
+df1_long$age <- as.factor(df1_long$age)
+
+
+## acquire simple descriptives using the package mosaic
+## specifically the function favstats returns some of the more
+## common stats we include in our reports.
+
+descriptive <- favstats(score ~ age, data = df1_long )
+descriptive
+
+
+### question 3
+overall_mean <- mean(df1_long$score)
+overall_mean
+std_error <- std.error(df1_long$score)
+std_error
+
+```
+
+
+### Exercise 2. 
+
+Similarly to Exercise 1 you can acquire the answers for questions 1 and 2 from either wide or long format but for question 3 you need your dataframe in long format. We will only demonstrate how to answer 1,2, and 3 using the long format.
+
+### Creating the dataframe
+
+```{r ex2_dataframe, echo=TRUE, message=FALSE, warning=FALSE}
+### create a vector that will contain our Placebo values
+Placebo <- c(19,14,18,15,11,12,11)
+
+### create a vector that will contain our LowDose values
+LowDose <- c(16,8,17,16,14,10,9)
+
+### create a vector that will contain our HighDose values
+HighDose <- c(7,11,3,5,7,8,11)
+
+### bring all the above vectors together to create a dataframe
+df2 <- data.frame(Placebo, LowDose, HighDose)
+```
+
+
+### Answering questions 1, 2, and 3
+
+```{r ex2_solution, echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(plotrix)  ### required for std.error()
+library(mosaic) ### alternative way to get statistics
+
+df2_long <- pivot_longer(df2, cols = 1:3, names_to = "condition", values_to = "score")
+
+df2_long
+
+## convert age variable to factor variable
+
+df2_long$condition <- as.factor(df2_long$condition)
+
+
+## acquire simple descriptives using the package mosaic
+## specifically the function favstats returns some of the more
+## common stats we include in our reports.
+
+descriptive <- favstats(score ~ condition, data = df2_long )
+descriptive
+
+
+### question 3
+overall_mean <- mean(df2_long$score)
+overall_mean
+std_error <- std.error(df2_long$score)
+std_error
+
+```
