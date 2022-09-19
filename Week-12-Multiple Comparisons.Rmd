@@ -1,0 +1,259 @@
+---
+title: "Week 12 A priori and post-hoc testing"
+author: "Dinkar Sharma, Lazaros Gonidis"
+date: "19/09/2022"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+In today's session we will be working on a priori and post-hoc testing. We will initially look at a task where we can carry out a post-hoc analysis by performing multiple *t*-tests and correcting our *p*-values. As mentioned last week we have different packages and functions available to carry out an analysis of variance. This week we will be working with the following packages and functions.   
+ 
+
+`library(haven) ### used to load SPSS .sav files, read_sav()`  
+`library(tidyverse) ### for general purpose functions`   
+`library(rstatix) ### used for our ANOVA, anova_test()`   
+`library(ggpubr) ### used for graphs such as gghistogram()`     
+`library(gmodels) ### used for fit.contrast() to create contrasts`   
+
+In this week's exercise we are only going to use one data file which is **epinex7.sav**. This file can be found on moodle. This is the same experiment as in task 1 of exercise on one-way anova using mice. This time, however, the dosages are 0.0 mg, 300 mg and 500 mg. Here, as well as the one-way ANOVA you carried out in the earlier, you are going to carry out Post Hoc and A Priori tests which can tell exactly which conditions are significantly different from each other. 
+
+
+## Task 1.  
+  Run a One-way ANOVA on the data in **epinex7.sav**. The experimenter wants to know which of the three conditions are different from one another, something the ANOVA cannot tell us directly. Use t-tests with the Bonferroni adjustment to find out. You should be able to complete this task using your knowledge of carrying out one-way anova and *t*-tests. You should also check for assumptions we did in previous weeks. We will not be including that below.
+
+
+Q1) The results of the ANOVA are : *F*(_____,_____)= _______, ________, _______    
+Q2) What are the means, standard deviations and Ns for each DOSAGE condition?     
+Q3) Is there a significant difference between DOSAGE conditions?      
+Q4) What is the family of comparisons for this post hoc test?    
+Q5) What is the familywise error rate for the post hoc test?     
+Q6) What can you conclude from the *t*-tests (verbally, no numbers)?           
+
+
+
+## Task 1: Solution
+
+
+```{r task.1, echo=TRUE, message=FALSE, warning=FALSE}
+library(haven) ### used to load SPSS .sav files, read_sav()
+library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+
+data <- read_sav("epinex7.sav")
+data
+
+
+### always remember to set your variables as factors where necessary
+data$DOSAGE <- as.factor(data$DOSAGE)
+
+### get mean and sd for our DV grouped by dosage level
+data %>% 
+  group_by(DOSAGE) %>% 
+  get_summary_stats(ERRORS, type = "mean_sd")
+
+
+
+## anova time
+# first describe the model
+anova.model <- anova_test(
+  data = data, 
+  dv = ERRORS, 
+  wid = SNO,  ## this is our participant id variable
+  between = DOSAGE,
+  type = 3,
+  detailed = TRUE
+)
+
+# then get the anova table
+get_anova_table(anova.model)
+
+# You can manually calculate the MSE by dividing
+## SSd and DFd. Make sure you specify the second line 
+## of your anova.model by typing [2,]
+MSE <- anova.model[2,"SSd"]/(anova.model[2,"DFd"])
+MSE
+
+
+## manually carrying out t-tests for post-hoc analysis
+## we will need to compare all conditions
+## this means in each t-test we will be excluding one condition
+
+
+t_test(data, ERRORS ~ DOSAGE, 
+       var.equal = TRUE, paired = FALSE,
+       comparisons = list(c("1", "2"),
+                          c("2", "3"),
+                          c("1", "3")),
+       p.adjust.method = "bonferroni")
+
+
+```
+
+Q1) The results of the ANOVA are : F(_____,_____)= _______, ________, _______   
+**The ANOVA is significant, F(2,118) = 14.872, MSE = 1.976, p < .001.** 
+
+Q2) What are the means, standard deviations and Ns for each DOSAGE condition?    
+**For 0mg condition, M = 3.14, SD = 1.52, N = 42; for 300mg condition, M = 4.81, SD = 1.25, N = 42; for 500mg condition, M = 4.11, SD = 1.43, N = 37.**   
+
+Q3) Is there a significant difference between DOSAGE conditions?   
+**Yes, the ANOVA tells us that at least one condition must be significantly different from at least one other condition. But it doesn’t tell us which ones!**   
+
+Q4) What is the family of comparisons for this post hoc test?
+**There are three comparisons here: 0mg vs. 300mg, 0mg vs. 500mg, and 300mg vs. 500mg. **
+
+Q5) What is the familywise error rate for the post hoc test? 
+**The familywise error rate is 1 - (1 - .05)<sup>k</sup>, where k = the number of comparisons you do. With three comparisons, the error rate is .14 = 1 - (1 - .05)<sup>3</sup> **
+
+Q6) What can you conclude from the tests (verbally, no numbers)?         
+**The three t-tests show that the two drug conditions – 300mg and 500mg – are both significantly different from the 0mg control condition. The 300 and 500mg conditions are not significantly different from one another. Notice that the 300 and 500mg conditions would have been significantly different had we not applied the correction. You can replace "none" with "boneferroni" in the solution to see what happens** 
+
+
+
+## Task 2: 
+	Using the same data file as in task 1, carry out the ANOVA again but this time do a different post hoc test (Tukey’s Honestly Significant Difference test). 
+
+Q1) Which conditions does Tukey’s HSD indicate as significantly different from one another?    
+Q2) What is the family of comparisons for this post-hoc test?   
+Q3) What is the familywise error rate for the post-hoc test?     
+Q4) What can you conclude from the tests (verbally, no numbers)?    
+
+
+
+## Task 2: Solution   
+
+```{r task.2, echo=TRUE, message=FALSE, warning=FALSE}
+
+
+## The ANOVA script is the same as above
+## as we only changed our post-hoc analysis
+## this time we will use Tukey's HSD
+
+## tukey_hsd() can be used together with the aov()
+## for even greater conveneience
+## aov() is another option for carrying our our analysis of variance
+
+library(haven) ### used to load SPSS .sav files, read_sav()
+library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+
+df3 <- read_sav("epinex7.sav")
+df3
+
+
+### always remember to set your variables as factors where necessary
+df3$DOSAGE <- as.factor(df3$DOSAGE)
+
+
+aov(ERRORS ~ DOSAGE, df3) %>% tukey_hsd() 
+
+```
+
+
+Q1) Which conditions does Tukey’s HSD indicate are significantly different from one another?    
+**Just as before, the two drug conditions are significantly different from the no-drug condition (p < .001 & p < .01), but are not significantly different from one another.** 
+
+Q2)What is the family of comparisons for this post hoc test?   
+**There are three comparisons here: 0mg vs. 300mg, 0mg vs. 500mg, and 300mg vs. 500mg.** 
+
+Q3) What is the familywise error rate for the post hoc test?   
+**Again, it is .14.** 
+
+Q4) What can you conclude from the tests (verbally, no numbers)?   
+**Tukey’s HSD gives almost the same results as the Bonferroni-corrected t-tests above. Both methods correct for familywise error, but they do it in a different way. In this case the results don’t differ much. Don’t worry about what the differences actually are. Practically speaking HSD is quicker to carry out when you want to compare all the conditions to one another. If for some reason you just want to look at a few comparisons (remember this will keep your familywise error low, which is good), then Bonferroni t-tests give you more flexibility.**    
+
+
+## Task 3: Contrasts   
+
+Here we are going to use contrasts as an a-priori comparison method. We are going to make two sets of comparisons. Firstly, we are going to compare the control condition with both treatment conditions at the same time. This type of contrast looks at the effect of the Epinephrine on the errors made without regard to the amount injected. It looks at whether the mice in the 300mg and 500mg dosages combined, differ from those in the control condition.  For our second contrast we want to look at the effect of 300mg compared with the effect of a 500mg dose.  Generate these contrasts and then answer the following.   
+
+Q1)What is the Family of comparisons for these contrasts? 
+
+Q2) What is the familywise error rate for these contrasts?  
+
+Q3) What can you conclude from these contrasts (Verbally, no numbers)?   
+Q4) Fill in :  t (___) = ____,_____   (For contrast one). 
+
+Q5) Fill in :  t (___) = ____,_____   (For contrast two).
+
+Q6) What do these t-tests do?       
+
+Q7) Are the results of the contrasts different from Tukey’s HSD results in task 2? If so why do you think this is so? 
+
+Q8) What Contrast coefficients would you use to compare the 500mg condition with the control condition?:  ____,  _____,  _____   
+
+
+
+
+
+
+
+## Task 3: Solution 
+
+
+```{r task.3, echo=TRUE, message=FALSE, warning=FALSE}
+
+library(haven) ### used to load SPSS .sav files, read_sav()
+library(tidyverse) ### for general purpose functions
+library(rstatix) ### used for our ANOVA, anova_test()
+library(ggpubr) ### used for graphs such as gghistogram()
+library(gmodels) ### used for fit.contrast 
+### you do not need to create a new dataframe
+
+df4 <- read_sav("epinex7.sav")
+df4
+
+## specify factor variable
+df4$DOSAGE <-as.factor(df4$DOSAGE)
+
+### declare your anova model
+res.aov <- aov(ERRORS ~ DOSAGE, data = df4)
+
+### contrast of control vs both 300mg and 500mg dosages
+fit.contrast(res.aov, "DOSAGE", c(1, -0.5, -0.5), df=TRUE )
+
+### contrast of 300mg vsd 500mg dosages
+fit.contrast(res.aov, "DOSAGE", c(0, 1, -1), df=TRUE )
+
+```
+
+
+Q1) What is the Family of comparisons for these contrasts?    
+**1. control vs average of 300& 500mg conditions**   
+**2. 300mg vs 500mg**   
+
+
+Q2) What is the familywise error rate for these contrasts?   
+**1 - (1 - .05)<sup>2</sup> = .0975**
+
+Q3) What can you conclude from these contrasts (Verbally, no numbers)?   
+**The average of errors in the two drug conditions is significantly higher than the control condition. The errors in the 300mg condition are significantly higher than in the 500mg condition**   
+
+Q4) Fill in :  t (____) = ____,_____   (For contrast one).   
+**Contrast One: t(118) = -4.899, p < .001**
+
+Q5) Fill in :  t (____) = ____,_____   (For contrast two).  
+**Contrast Two: t(118) = -2.213, p < .029**
+
+Q6) What do these t-tests do?  
+**Each t-test determines whether the specified contrast is or is not significant. The first contrast considers whether the control mean differs from the average of the 300 & 500mg means. The second contrast considers whether the 300mg mean differs from the 500mg mean.**
+
+Q7) Are the results of the contrasts different from Tukey’s HSD results in task 2? If so why do you think this is so?   
+**Yes. The 300 vs 500mg means differ here, they did not with Tukey's HSD. To keep the familywise error rate at .05 Tukey's requires larger mean differences to attain significance. In task 3 the contrasts were treated as A Priori or planned comparison. Traditionally, we do not correct for familywise error for such tests.**
+
+Q8) What Contrast coefficients would you use to compare the 500mg condition with the control condition?:  ____,  _____,  _____   
+**1 		0		 -1**    
+OR   
+**-1 		0		 1**
+
+
+
+
+
+
