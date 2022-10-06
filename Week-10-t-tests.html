@@ -556,8 +556,9 @@ the data. Now produce descriptive statistics and histograms for patients
 (role=1) and spouses (role=2) at time 1. Use the appropriate t-test to
 compare these two conditions at time 1.</p>
 <p>Q1) What sort of t-test are you using and what is it doing?</p>
-<p>Q2) To what extent are the test’s assumptions violated by the data?
-Q3) What is the Null Hypothesis for this test?</p>
+<p>Q2) To what extent are the test’s assumptions violated by the
+data?</p>
+<p>Q3) What is the Null Hypothesis for this test?</p>
 <p>Q4) Can it be rejected?________. Fill in : t ( ) = ______, ______</p>
 </div>
 <div id="answers" class="section level1">
@@ -665,7 +666,7 @@ t_test(df_long1, score~session, var.equal = TRUE, paired = TRUE)</code></pre>
 close to .05 (.056) but still above .05. We will therefore assume equal
 variance.</p>
 <p>Q3) The two means are equal.</p>
-<p>Q4) No we cannot reject the null hypothesis. <em>t</em>(273) = 3.73,
+<p>Q4) No we cannot reject the null hypothesis. <em>t</em>(273) = -1.97,
 <em>p</em> = .0503. Even though this is marginally above .05</p>
 </div>
 <div id="task-2-analysis-code" class="section level2">
@@ -813,7 +814,15 @@ t_test(df_long3, score~session, var.equal = TRUE, paired = TRUE)</code></pre>
 <p>Q1) We will be using an independent samples <em>t</em>-test to
 compare patients and spouses, but only for at session 1. We will
 therefore, use filter again but for session this time.</p>
-<p>Q2) The assumptions seem to hold</p>
+<p>Q2) The assumptions seem to hold. Coming to this conclusion is not
+straightforward. There is some ambiguity with the assumption for
+normality. The histograms look normal. The q-q plots look like the data
+follows the line from bottom left to top right, but there is some
+indication of skewness. However, the skewness values are within the
+range 2 and -2, so there is no need to be concerned. The only statistic
+to be concerned about is the Shapiro-Wilk test where the p-value is
+lower than 0.05. Despite this, on balance, the assumptions seem to
+hold.</p>
 <p>Q3) There is no difference between the means</p>
 <p>Q4) No it cannot be rejected. <em>t</em>(173) = -1.39, <em>p</em> =
 .168</p>
